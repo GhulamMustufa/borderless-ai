@@ -1,6 +1,7 @@
 import { Pool } from "pg";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
+import { safeFetchGovernmentUrl } from "../lib/safe-fetch";
 
 // We require OPENAI_API_KEY and DATABASE_URL in the environment
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -16,7 +17,7 @@ const pool = new Pool({
 
 async function fetchAndCleanHTML(url: string): Promise<string> {
   console.log(`\n1. Fetching URL: ${url}`);
-  const response = await fetch(url);
+  const response = await safeFetchGovernmentUrl(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
   }
@@ -114,14 +115,14 @@ async function saveToDatabase(extractedData: any, url: string, embedding: number
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
     [
       source_id, 
-      1, // Assuming scraped direct government urls are tier 1
+      5, // Unverified new scrapes must be Tier 5 pending human review
       extractedData.country, 
       "National", 
       extractedData.pathway, 
       extractedData.claim_type, 
       url, 
       extractedData.source_title, 
-      "VERIFIED", 
+      "QUARANTINED", // Marked QUARANTINED until human review
       extractedData.markdown_content, 
       content_hash, 
       embeddingStr

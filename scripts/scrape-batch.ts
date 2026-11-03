@@ -5,6 +5,7 @@ import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import csv from "csv-parser";
+import { safeFetchGovernmentUrl } from "../lib/safe-fetch";
 
 // We require OPENAI_API_KEY and DATABASE_URL in the environment
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -35,13 +36,7 @@ async function urlExistsInDB(url: string): Promise<boolean> {
 }
 
 async function fetchAndCleanHTML(url: string): Promise<string> {
-  const response = await fetch(url, {
-    method: "GET",
-    signal: AbortSignal.timeout(10000), // 10s timeout
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
-  });
+  const response = await safeFetchGovernmentUrl(url, { timeoutMs: 10000 });
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
   }
@@ -133,14 +128,14 @@ async function saveToDatabase(extractedData: any, url: string, embedding: number
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
     [
       source_id, 
-      1, // Assuming scraped direct government urls are tier 1
+      5, // Unverified new scrapes must be Tier 5 pending human review
       extractedData.country, 
       "National", 
       extractedData.pathway, 
       extractedData.claim_type, 
       url, 
       extractedData.source_title, 
-      "VERIFIED", 
+      "QUARANTINED", // Marked QUARANTINED until human review
       extractedData.markdown_content, 
       content_hash, 
       embeddingStr

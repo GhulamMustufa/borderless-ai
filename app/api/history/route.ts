@@ -36,12 +36,19 @@ export async function GET(req: Request) {
 
   const { userId } = await auth();
 
+  if (!userId) {
+    return NextResponse.json(
+      { error: "Unauthorized. Please sign in to view your assessment history." },
+      { status: 401 },
+    );
+  }
+
   try {
     const items = await listRecentSubmissions({
       limit,
       goal,
       region,
-      userId: userId ?? undefined,
+      userId,
     });
     return NextResponse.json({ items });
   } catch (err) {

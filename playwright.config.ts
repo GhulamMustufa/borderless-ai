@@ -27,8 +27,12 @@ export default defineConfig({
     timeout: 120_000, // 2 min to allow Next.js to compile on cold start
     env: {
       PORT: '3001',
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2VydGFpbi1idXJyby00MTgxLmNsZXJrLmFjY291bnRzLmRldiQ',
-      CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || 'sk_test_dY7PGHDb9mmxm1hm8gOynwarCqFe5wzby2cKLhzEmS',
+      ...(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        ? { NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }
+        : {}),
+      ...(process.env.CLERK_SECRET_KEY
+        ? { CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY }
+        : {}),
     },
   },
 });

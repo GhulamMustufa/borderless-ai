@@ -91,10 +91,7 @@ export default function RootLayout({
 
   return (
     <ClerkProvider
-      publishableKey={
-        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-        "pk_test_Y2VydGFpbi1idXJyby00MTgxLmNsZXJrLmFjY291bnRzLmRldiQ"
-      }
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     >
       <html lang="en" suppressHydrationWarning>
         <body

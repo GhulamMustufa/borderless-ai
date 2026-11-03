@@ -9,6 +9,8 @@ import {
   saveChatMessage,
 } from '@/lib/persistence';
 
+import { checkRateLimit } from '@/lib/rate-limit';
+
 // Initialize Postgres connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -16,11 +18,16 @@ const pool = new Pool({
 });
 
 async function generateEmbedding(text: string): Promise<number[]> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing OPENAI_API_KEY");
+  }
+
   const res = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       input: text.replace(/\n/g, ' '),
@@ -63,7 +70,7 @@ export async function GET(req: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Chat GET error:", error);
+    console.error("Chat GET error:", error instanceof Error ? error.message : "Unknown error");
     return new Response(JSON.stringify({ error: "Failed to fetch chat history" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -74,14 +81,65 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
-    const rawBody = await req.text();
-    const { messages, threadId: requestedThreadId } = rawBody ? JSON.parse(rawBody) : { messages: [] };
-    
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized. Please sign in to use the AI chat." }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Rate limit per authenticated user
+    const rate = checkRateLimit(`chat-${userId}`);
+    if (!rate.allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please wait a moment before sending more messages." }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil(rate.retryAfterMs / 1000)),
+          },
+        }
+      );
+    }
+
+    let parsedBody: any;
+    try {
+      const rawBody = await req.text();
+      parsedBody = rawBody ? JSON.parse(rawBody) : {};
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const { messages, threadId: requestedThreadId } = parsedBody;
+
+    // Validate messages array
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(JSON.stringify({ error: "Invalid request: messages array is required." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (messages.length > 50) {
+      return new Response(JSON.stringify({ error: "Conversation is too long. Please start a new chat." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // Get the user's latest question
     const latestMessage = messages[messages.length - 1];
     if (!latestMessage) {
-      return new Response(JSON.stringify({ error: "No messages provided" }), { status: 400 });
+      return new Response(JSON.stringify({ error: "No messages provided" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
+
     let userQuery = latestMessage.content || "";
     if (!userQuery && latestMessage.parts) {
       userQuery = latestMessage.parts
@@ -90,18 +148,30 @@ export async function POST(req: Request) {
         .join('\n');
     }
 
-    // Identify or create thread if logged in
+    if (typeof userQuery !== "string" || userQuery.trim().length === 0) {
+      return new Response(JSON.stringify({ error: "Message content cannot be empty." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (userQuery.length > 2000) {
+      return new Response(JSON.stringify({ error: "Message too long. Please limit your message to 2,000 characters." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Identify or create thread for logged in user
     let activeThreadId: string | null = null;
-    if (userId) {
-      activeThreadId = await getOrCreateThread(userId, requestedThreadId);
-      if (activeThreadId) {
-        await saveChatMessage({
-          threadId: activeThreadId,
-          role: "user",
-          content: userQuery,
-          updateTitle: true,
-        });
-      }
+    activeThreadId = await getOrCreateThread(userId, requestedThreadId);
+    if (activeThreadId) {
+      await saveChatMessage({
+        threadId: activeThreadId,
+        role: "user",
+        content: userQuery,
+        updateTitle: true,
+      });
     }
 
     // 1. Generate an embedding of the user's question
@@ -109,13 +179,15 @@ export async function POST(req: Request) {
     const embeddingStr = `[${embedding.join(',')}]`;
 
     // 2. Query Neon DB for the most relevant context using pgvector cosine distance (<=>)
+    // Enforce that only human-verified official evidence is fed to the AI model
     const queryResult = await pool.query(
       `SELECT country, pathway, source_title, content, source_url, 1 - (embedding <=> $1) AS similarity
        FROM immigration_evidence
-       WHERE 1 - (embedding <=> $1) > 0.3
+       WHERE verification_status = $2
+         AND 1 - (embedding <=> $1) > 0.3
        ORDER BY embedding <=> $1
        LIMIT 5`,
-      [embeddingStr]
+      [embeddingStr, 'VERIFIED']
     );
 
     const contextRows = queryResult.rows;
