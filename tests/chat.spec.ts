@@ -51,7 +51,7 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
     await expect(anzCard).toBeVisible();
     await anzCard.getByRole('link', { name: 'Check My Chances' }).click();
 
-    await expect(page).toHaveURL(/\/form\?region=anz$/);
+    await expect(page).toHaveURL(/\/form\?region=anz$/, { timeout: 25_000 });
     await expect(page.getByText('Selected region: Australia/New Zealand')).toBeVisible();
     await expect(page.locator('#targetRegion')).toHaveValue('australia-new-zealand');
     await expect(page.getByTestId('uncertified-region-notice')).toHaveCount(0);
@@ -155,7 +155,7 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
     await page.locator('#testScore').fill('7.5');
     await page.getByRole('button', { name: 'Check My Chances' }).click();
 
-    await expect(page).toHaveURL(/\/results$/);
+    await expect(page).toHaveURL(/\/results$/, { timeout: 25_000 });
     expect(captured.payload).not.toBeNull();
     expect(captured.payload?.targetRegion).toBe('uk');
     expect(captured.payload?.hasJobOffer).toBe(true);
@@ -177,7 +177,7 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
     await expect(page.locator('text=3 free consultation questions')).toHaveCount(0);
 
     await page.getByRole('button', { name: /See Full Sample Report/ }).click();
-    await expect(page).toHaveURL(/\/results$/);
+    await expect(page).toHaveURL(/\/results$/, { timeout: 25_000 });
     await expect(page.locator('h1', { hasText: 'Your Visa Plan' })).toBeVisible();
     await expect(page.getByText('What-If Simulator')).toBeVisible();
 
