@@ -43,7 +43,7 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2VydGFpbi1idXJyby00MTgxLmNsZXJrLmFjY291bnRzLmRldiQ' }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_ci_dummy_secret_key_placeholder' }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || '' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-dummy-test-key-for-ci-build' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy' }}
           NEXT_PUBLIC_SITE_URL: "https://borderless-ai.com"
@@ -78,7 +78,7 @@ jobs:
           CI: true
           PLAYWRIGHT_TEST_BASE_URL: "http://localhost:3001"
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2VydGFpbi1idXJyby00MTgxLmNsZXJrLmFjY291bnRzLmRldiQ' }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_ci_dummy_secret_key_placeholder' }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || '' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-dummy-test-key-for-ci-build' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy' }}
           NEXT_PUBLIC_SITE_URL: "https://borderless-ai.com"
