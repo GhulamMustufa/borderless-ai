@@ -6,7 +6,8 @@ import type { Goal, TargetRegion, VisaProfile } from "@/lib/types";
 type HistoryPathway = {
   name: string;
   country: string;
-  score: number;
+  score?: number;
+  baseScore?: number;
 };
 
 type HistoryItem = {
@@ -83,7 +84,7 @@ export default function HistoryPage() {
   function avgScore(item: HistoryItem): number {
     if (!item.result.pathways.length) return 0;
     return Math.round(
-      item.result.pathways.reduce((sum, p) => sum + Number(p.score || 0), 0) /
+      item.result.pathways.reduce((sum, p: any) => sum + Number(p.baseScore ?? p.score ?? 0), 0) /
         item.result.pathways.length,
     );
   }
@@ -146,7 +147,7 @@ export default function HistoryPage() {
                 </p>
                 <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                   Top pathway: {item.result.pathways[0]?.name ?? "N/A"} (
-                  {item.result.pathways[0]?.score ?? 0}%)
+                  {item.result.pathways[0]?.baseScore ?? item.result.pathways[0]?.score ?? 0}%)
                 </p>
               </div>
             ))}

@@ -1,4 +1,87 @@
-import type { Evidence, DataFreshness, CitationValidationResult, ConflictDetectionResult, Citation } from "./types";
+import { z } from "zod";
+import type { Evidence, DataFreshness, CitationValidationResult, ConflictDetectionResult, Citation, EnglishTest } from "./types";
+
+const REGIONS = [
+  "canada",
+  "uk",
+  "australia-new-zealand",
+  "germany-nordics",
+  "southern-europe",
+  "middle-east",
+  "usa",
+  "sg-my",
+  "jp-kr",
+  "easy-entry",
+  "latam",
+  "eastern-europe",
+  "greater-china",
+  "africa",
+] as const;
+const EDUCATION = ["high_school", "bachelor", "master", "phd"] as const;
+const ENGLISH = ["none", "ielts", "toefl"] as const;
+const GOALS = ["work", "study", "pr"] as const;
+
+export const profileSchema = z
+  .object({
+    nationality: z
+      .string()
+      .trim()
+      .min(1, "nationality is required")
+      .max(60, "nationality too long")
+      .regex(/^[a-zA-Z\u00C0-\u024F\s'\-.]+$/, "Invalid characters in nationality"),
+    targetRegion: z.enum(REGIONS),
+    age: z.coerce.number().int().min(18).max(80),
+    education: z.enum(EDUCATION),
+    yearsExperience: z.coerce.number().int().min(0).max(60),
+    fieldOfWork: z
+      .string()
+      .trim()
+      .min(1, "fieldOfWork is required")
+      .max(60, "fieldOfWork too long")
+      .regex(/^[a-zA-Z0-9\s,.\-&/]+$/, "Invalid characters in field of work"),
+    englishTest: z.enum(ENGLISH),
+    testScore: z.coerce.number().nullable().optional(),
+    savingsUsd: z.coerce.number().min(0).max(50_000_000),
+    goal: z.enum(GOALS),
+    hasJobOffer: z.boolean().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.testScore == null || val.englishTest === "none") return;
+    if (!Number.isFinite(val.testScore)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["testScore"],
+        message: "Test score must be a valid number",
+      });
+      return;
+    }
+    if (val.englishTest === "ielts" && (val.testScore < 0 || val.testScore > 9)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["testScore"],
+        message: "IELTS band score must be between 0 and 9",
+      });
+    }
+    if (val.englishTest === "toefl" && (val.testScore < 0 || val.testScore > 120)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["testScore"],
+        message: "TOEFL total score must be between 0 and 120",
+      });
+    }
+  });
+
+export function parseOptionalTestScore(
+  englishTest: EnglishTest,
+  raw: unknown,
+): number | null {
+  if (raw === undefined || raw === null || raw === "") return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return null;
+  if (englishTest === "none") return null;
+  if (englishTest === "ielts") return Math.min(9, Math.max(0, n));
+  return Math.min(120, Math.max(0, n));
+}
 
 export function evaluateFreshness(evidence: Evidence): DataFreshness {
   const now = new Date();

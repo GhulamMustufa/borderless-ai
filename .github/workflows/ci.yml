@@ -8,10 +8,10 @@ on:
 
 jobs:
   # ──────────────────────────────────────────────────────────────
-  # Job 1: TypeScript build check
+  # Job 1: Typecheck, Lint, Unit Tests, Eval & Production Build
   # ──────────────────────────────────────────────────────────────
   build:
-    name: Build (TypeScript + Next.js)
+    name: Verify (Typecheck + Lint + Tests + Build)
     runs-on: ubuntu-latest
 
     steps:
@@ -27,21 +27,29 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
       - name: Run linter
         run: npm run lint
+
+      - name: Run unit & contract tests (Vitest)
+        run: npm test
+
+      - name: Run deterministic golden evaluation
+        run: npm run evaluate
 
       - name: Build Next.js app
         run: npm run build
         env:
-          # Provide dummy values so build succeeds in CI without real secrets
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2VydGFpbi1idXJyby00MTgxLmNsZXJrLmFjY291bnRzLmRldiQ' }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_dY7PGHDb9mmxm1hm8gOynwarCqFe5wzby2cKLhzEmS' }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_ci_dummy_secret_key_placeholder' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-dummy-test-key-for-ci-build' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy' }}
           NEXT_PUBLIC_SITE_URL: "https://borderless-ai.com"
 
   # ──────────────────────────────────────────────────────────────
-  # Job 2: Playwright E2E tests (runs after build passes)
+  # Job 2: Playwright E2E tests (runs after build & unit suite pass)
   # ──────────────────────────────────────────────────────────────
   e2e:
     name: E2E Tests (Playwright / Chromium)
@@ -64,13 +72,13 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Start dev server & run Playwright tests
-        run: npx playwright test
+      - name: Run mocked Playwright E2E suite
+        run: npx playwright test tests/chat.spec.ts
         env:
           CI: true
           PLAYWRIGHT_TEST_BASE_URL: "http://localhost:3001"
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2VydGFpbi1idXJyby00MTgxLmNsZXJrLmFjY291bnRzLmRldiQ' }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_dY7PGHDb9mmxm1hm8gOynwarCqFe5wzby2cKLhzEmS' }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_ci_dummy_secret_key_placeholder' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'sk-dummy-test-key-for-ci-build' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy' }}
           NEXT_PUBLIC_SITE_URL: "https://borderless-ai.com"

@@ -1,162 +1,140 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import { isPrivateIp, validateGovernmentUrl } from "../lib/safe-fetch";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { isPrivateIp, validateGovernmentUrl } from "@/lib/safe-fetch";
+import { isEvidenceEligible, filterByAuthority } from "@/lib/evidence";
+import type { Evidence } from "@/lib/types";
 
-test("SSRF Protection: isPrivateIp correctly identifies private and reserved IP addresses", () => {
-  // Loopback
-  assert.equal(isPrivateIp("127.0.0.1"), true, "127.0.0.1 should be blocked");
-  assert.equal(isPrivateIp("127.1.2.3"), true, "127.1.2.3 should be blocked");
-  assert.equal(isPrivateIp("::1"), true, "IPv6 loopback should be blocked");
+const mockAuth = vi.fn();
+const mockListRecentSubmissions = vi.fn();
 
-  // Private subnets
-  assert.equal(isPrivateIp("10.0.0.1"), true, "10.0.0.1 should be blocked");
-  assert.equal(isPrivateIp("10.254.1.1"), true, "10.254.1.1 should be blocked");
-  assert.equal(isPrivateIp("192.168.1.1"), true, "192.168.1.1 should be blocked");
-  assert.equal(isPrivateIp("172.16.0.1"), true, "172.16.0.1 should be blocked");
-  assert.equal(isPrivateIp("172.31.255.255"), true, "172.31.255.255 should be blocked");
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: () => mockAuth(),
+}));
 
-  // Cloud metadata (AWS/GCP/Azure)
-  assert.equal(isPrivateIp("169.254.169.254"), true, "Cloud metadata IP should be blocked");
+vi.mock("@/lib/persistence", () => ({
+  listRecentSubmissions: (args: any) => mockListRecentSubmissions(args),
+  listUserThreads: vi.fn().mockResolvedValue([]),
+  getOrCreateThread: vi.fn().mockResolvedValue(null),
+  getThreadMessages: vi.fn().mockResolvedValue([]),
+  saveChatMessage: vi.fn().mockResolvedValue(undefined),
+}));
 
-  // Public valid IPs should pass
-  assert.equal(isPrivateIp("8.8.8.8"), false, "8.8.8.8 is a public IP");
-  assert.equal(isPrivateIp("1.1.1.1"), false, "1.1.1.1 is a public IP");
-  assert.equal(isPrivateIp("151.101.1.69"), false, "Public CDN IP should pass");
-});
+import { GET as getHistory } from "@/app/api/history/route";
+import { GET as getChat, POST as postChat } from "@/app/api/chat/route";
 
-test("SSRF Protection: validateGovernmentUrl rejects insecure protocols and unapproved domains", async () => {
-  // Insecure protocol
-  await assert.rejects(
-    async () => validateGovernmentUrl("http://travel.state.gov/visa"),
-    /Insecure protocol/
-  );
+describe("Security Verification Suite", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-  // Localhost / internal
-  await assert.rejects(
-    async () => validateGovernmentUrl("https://localhost/admin"),
-    /Access to local\/internal hostnames is blocked/
-  );
+  it("SSRF Protection: isPrivateIp identifies private, loopback, and metadata IPs", () => {
+    expect(isPrivateIp("127.0.0.1")).toBe(true);
+    expect(isPrivateIp("127.1.2.3")).toBe(true);
+    expect(isPrivateIp("::1")).toBe(true);
+    expect(isPrivateIp("10.0.0.1")).toBe(true);
+    expect(isPrivateIp("192.168.1.1")).toBe(true);
+    expect(isPrivateIp("172.16.0.1")).toBe(true);
+    expect(isPrivateIp("172.31.255.255")).toBe(true);
+    expect(isPrivateIp("169.254.169.254")).toBe(true);
 
-  // Unapproved arbitrary domain
-  await assert.rejects(
-    async () => validateGovernmentUrl("https://evil-attacker.com/malicious"),
-    /not on the approved government domains allowlist/
-  );
-});
+    expect(isPrivateIp("8.8.8.8")).toBe(false);
+    expect(isPrivateIp("1.1.1.1")).toBe(false);
+    expect(isPrivateIp("151.101.1.69")).toBe(false);
+  });
 
-test("History API Isolation: filters strictly by authenticated userId", () => {
-  // Simulate the database query generator in lib/persistence.ts
-  function generateQuery(filters: { userId?: string | null; goal?: string }) {
-    const values: any[] = [];
-    const conditions: string[] = [];
+  it("SSRF Protection: validateGovernmentUrl rejects insecure protocols, localhost, and non-gov domains", async () => {
+    await expect(validateGovernmentUrl("http://travel.state.gov/visa")).rejects.toThrow(/Insecure protocol/);
+    await expect(validateGovernmentUrl("https://localhost/admin")).rejects.toThrow(/local\/internal hostnames/);
+    await expect(validateGovernmentUrl("https://evil-attacker.com/malicious")).rejects.toThrow(
+      /not on the approved government domains allowlist/
+    );
+  });
 
-    if (filters.userId !== undefined) {
-      values.push(filters.userId);
-      conditions.push(`user_id = $${values.length}`);
-    }
-    if (filters.goal) {
-      values.push(filters.goal);
-      conditions.push(`profile->>'goal' = $${values.length}`);
-    }
-    return { conditions, values };
-  }
+  it("History API Isolation: real GET /api/history requires auth and scopes by userId", async () => {
+    mockAuth.mockResolvedValue({ userId: null });
+    const unauthRes = await getHistory(new Request("http://localhost/api/history"));
+    expect(unauthRes.status).toBe(401);
+    expect(mockListRecentSubmissions).not.toHaveBeenCalled();
 
-  // Case 1: Unauthenticated (previously passed userId: undefined)
-  const leakQuery = generateQuery({ userId: undefined });
-  assert.equal(
-    leakQuery.conditions.some((c) => c.startsWith("user_id")),
-    false,
-    "Vulnerability proof: without userId, NO user_id condition was applied (full data leak)"
-  );
+    mockAuth.mockResolvedValue({ userId: "user_real_A" });
+    mockListRecentSubmissions.mockResolvedValue([{ id: 1 }]);
+    const authRes = await getHistory(new Request("http://localhost/api/history?goal=work"));
+    expect(authRes.status).toBe(200);
+    expect(mockListRecentSubmissions).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: "user_real_A", goal: "work" })
+    );
+  });
 
-  // Case 2: Fixed authenticated request for User A
-  const fixedQueryUserA = generateQuery({ userId: "user_clerk_A", goal: "work" });
-  assert.equal(fixedQueryUserA.conditions[0], "user_id = $1");
-  assert.equal(fixedQueryUserA.values[0], "user_clerk_A");
+  it("Chat API Auth & Input Validation: rejects unauthenticated callers, empty arrays, and >2000 char payloads", async () => {
+    mockAuth.mockResolvedValue({ userId: null });
+    const unauthGetRes = await getChat(new Request("http://localhost/api/chat"));
+    expect(unauthGetRes.status).toBe(401);
 
-  // Case 3: Fixed authenticated request for User B
-  const fixedQueryUserB = generateQuery({ userId: "user_clerk_B", goal: "work" });
-  assert.equal(fixedQueryUserB.conditions[0], "user_id = $1");
-  assert.equal(fixedQueryUserB.values[0], "user_clerk_B");
-  assert.notEqual(fixedQueryUserA.values[0], fixedQueryUserB.values[0], "User A and User B queries must isolate");
-});
+    const unauthRes = await postChat(
+      new Request("http://localhost/api/chat", {
+        method: "POST",
+        body: JSON.stringify({ messages: [{ role: "user", content: "Hello" }] }),
+      })
+    );
+    expect(unauthRes.status).toBe(401);
 
-test("Chat API Validation: Enforces message limits and content restrictions", () => {
-  function validateChatInput(body: any) {
-    if (!body || !Array.isArray(body.messages)) {
-      return { valid: false, error: "Messages array is required" };
-    }
-    if (body.messages.length === 0 || body.messages.length > 50) {
-      return { valid: false, error: "Messages count must be between 1 and 50" };
-    }
-    const lastMessage = body.messages[body.messages.length - 1];
-    if (!lastMessage || typeof lastMessage.content !== "string") {
-      return { valid: false, error: "Invalid message format" };
-    }
-    const trimmed = lastMessage.content.trim();
-    if (trimmed.length === 0 || trimmed.length > 2000) {
-      return { valid: false, error: "Message must be between 1 and 2000 characters" };
-    }
-    return { valid: true, query: trimmed };
-  }
+    mockAuth.mockResolvedValue({ userId: "user_chat_sec" });
 
-  // Empty messages
-  assert.equal(validateChatInput({ messages: [] }).valid, false);
+    const emptyRes = await postChat(
+      new Request("http://localhost/api/chat", {
+        method: "POST",
+        body: JSON.stringify({ messages: [] }),
+      })
+    );
+    expect(emptyRes.status).toBe(400);
 
-  // Excessive message count (>50)
-  const excessiveMessages = Array.from({ length: 51 }, () => ({ content: "hi" }));
-  assert.equal(validateChatInput({ messages: excessiveMessages }).valid, false);
+    const tooManyRes = await postChat(
+      new Request("http://localhost/api/chat", {
+        method: "POST",
+        body: JSON.stringify({ messages: Array.from({ length: 51 }, () => ({ role: "user", content: "hi" })) }),
+      })
+    );
+    expect(tooManyRes.status).toBe(400);
 
-  // Blank message
-  assert.equal(validateChatInput({ messages: [{ content: "   " }] }).valid, false);
+    const longRes = await postChat(
+      new Request("http://localhost/api/chat", {
+        method: "POST",
+        body: JSON.stringify({ messages: [{ role: "user", content: "A".repeat(2001) }] }),
+      })
+    );
+    expect(longRes.status).toBe(400);
+  });
 
-  // Message over 2000 characters
-  const longContent = "A".repeat(2001);
-  assert.equal(validateChatInput({ messages: [{ content: longContent }] }).valid, false);
+  it("Evidence Eligibility Gate: blocks QUARANTINED, PENDING, null-reviewer, and Tier 4/5 records", () => {
+    const now = new Date("2026-11-10T00:00:00Z");
+    const base: Evidence = {
+      id: "ev-1",
+      source_id: "src-1",
+      authority_tier: 1,
+      country: "United Kingdom",
+      pathway: "Skilled Worker visa",
+      claim_type: "salary",
+      source_url: "https://www.gov.uk/skilled-worker-visa",
+      source_title: "UK Skilled Worker",
+      verification_status: "VERIFIED",
+      human_reviewed_at: "2026-11-01T00:00:00Z",
+      human_reviewed_by: "auditor_1",
+      retrieved_at: "2026-11-01T00:00:00Z",
+      content_hash: "hash-1",
+      content: "Minimum salary is £38,700.",
+    };
 
-  // Valid message
-  const valid = validateChatInput({ messages: [{ role: "user", content: "What visas are available?" }] });
-  assert.equal(valid.valid, true);
-  assert.equal(valid.query, "What visas are available?");
-});
+    const filtered = filterByAuthority(
+      [
+        base,
+        { ...base, id: "ev-2", verification_status: "QUARANTINED" },
+        { ...base, id: "ev-3", verification_status: "PENDING" },
+        { ...base, id: "ev-4", human_reviewed_by: "   " },
+        { ...base, id: "ev-5", authority_tier: 4 },
+      ],
+      now
+    );
 
-test("Chat Evidence Retrieval: Strictly filters by verification_status = 'VERIFIED'", () => {
-  // Simulate SQL query: `WHERE verification_status = $2 AND 1 - (embedding <=> $1) > 0.3` with $2 = 'VERIFIED'
-  function executeEvidenceQuery(
-    rows: Array<{ id: number; title: string; verification_status: string | null | undefined; similarity: number }>,
-    requiredStatus: string,
-    threshold: number
-  ) {
-    return rows.filter((row) => row.verification_status === requiredStatus && row.similarity > threshold);
-  }
-
-  const testDatabaseRecords = [
-    { id: 1, title: "Official UK Skilled Worker Rules", verification_status: "VERIFIED", similarity: 0.88 },
-    { id: 2, title: "Raw Scraped Gov Post (Unreviewed)", verification_status: "QUARANTINED", similarity: 0.95 },
-    { id: 3, title: "Legacy Null-status Evidence", verification_status: null, similarity: 0.82 },
-    { id: 4, title: "Undefined Status Record", verification_status: undefined, similarity: 0.77 },
-    { id: 5, title: "Pending Review Record", verification_status: "PENDING", similarity: 0.80 },
-    { id: 6, title: "Low Similarity Verified Record", verification_status: "VERIFIED", similarity: 0.25 },
-  ];
-
-  const retrieved = executeEvidenceQuery(testDatabaseRecords, "VERIFIED", 0.3);
-
-  // 1. VERIFIED records can be retrieved
-  assert.equal(retrieved.length, 1);
-  assert.equal(retrieved[0].id, 1);
-  assert.equal(retrieved[0].title, "Official UK Skilled Worker Rules");
-  assert.equal(retrieved[0].verification_status, "VERIFIED");
-
-  // 2. QUARANTINED records CANNOT be retrieved
-  assert.equal(retrieved.some((r) => r.verification_status === "QUARANTINED"), false);
-  assert.equal(retrieved.some((r) => r.id === 2), false);
-
-  // 3. NULL or unknown statuses CANNOT be retrieved
-  assert.equal(retrieved.some((r) => r.verification_status === null), false);
-  assert.equal(retrieved.some((r) => r.verification_status === undefined), false);
-  assert.equal(retrieved.some((r) => r.verification_status === "PENDING"), false);
-
-  // 4. Prove AI cannot receive quarantined evidence
-  const aiContext = retrieved.map((r) => r.title).join("\n");
-  assert.equal(aiContext.includes("Raw Scraped Gov Post (Unreviewed)"), false);
+    expect(filtered.map((e) => e.id)).toEqual(["ev-1"]);
+    expect(isEvidenceEligible({ ...base, verification_status: "QUARANTINED" }, now)).toBe(false);
+  });
 });

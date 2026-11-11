@@ -79,6 +79,10 @@ export class TraceContext {
     this.trace.validationFailures.push(...criticResult.feedback);
   }
 
+  recordValidationFailure(reason: string) {
+    this.trace.validationFailures.push(reason);
+  }
+
   recordModelInfo(model: string, promptTokens?: number, completionTokens?: number) {
     this.trace.modelUsed = model;
     if (promptTokens) this.trace.promptTokens = (this.trace.promptTokens || 0) + promptTokens;

@@ -146,26 +146,30 @@ export default async function DashboardPage({
         ) : (
           <ul className="space-y-3">
             {recentItems.map((item) => {
-              // Heuristic calculation if historical row was saved with score 0
-              const eduPts = item.profile.education === "phd" ? 28 : item.profile.education === "master" ? 24 : item.profile.education === "bachelor" ? 16 : 8;
-              const expPts = item.profile.yearsExperience >= 8 ? 24 : item.profile.yearsExperience >= 5 ? 20 : item.profile.yearsExperience >= 3 ? 15 : item.profile.yearsExperience >= 1 ? 8 : 0;
-              const savPts = item.profile.savingsUsd >= 50000 ? 24 : item.profile.savingsUsd >= 25000 ? 18 : item.profile.savingsUsd >= 10000 ? 12 : item.profile.savingsUsd >= 5000 ? 6 : 0;
-              const langPts = item.profile.englishTest !== "none" ? 20 : 0;
-              const heuristicScore = Math.min(100, eduPts + expPts + savPts + langPts);
+              const firstPathway = item.result.pathways[0] as any;
+              const rawTopScore =
+                typeof firstPathway?.baseScore === "number"
+                  ? firstPathway.baseScore
+                  : typeof firstPathway?.score === "number"
+                    ? firstPathway.score
+                    : 0;
+              const topScore = Math.min(100, Math.max(0, Math.round(rawTopScore)));
+              const topName = firstPathway?.name ?? "—";
 
-              const rawTopScore = item.result.pathways[0]?.score ?? (item.result.pathways[0] as any)?.baseScore ?? 0;
-              const topScore = rawTopScore > 0 ? rawTopScore : heuristicScore;
-              const topName = item.result.pathways[0]?.name ?? "—";
-              
-              const calculatedAvg = item.result.pathways.length > 0
-                ? Math.round(
-                    item.result.pathways.reduce((s, p) => {
-                      const sc = p.score ?? (p as any).baseScore ?? 0;
-                      return s + (sc > 0 ? sc : heuristicScore);
-                    }, 0) / item.result.pathways.length,
-                  )
-                : heuristicScore;
-              const avgScore = calculatedAvg > 0 ? calculatedAvg : topScore;
+              const avgScore =
+                item.result.pathways.length > 0
+                  ? Math.round(
+                      item.result.pathways.reduce((s, p) => {
+                        const raw =
+                          typeof (p as any).baseScore === "number"
+                            ? (p as any).baseScore
+                            : typeof p.score === "number"
+                              ? p.score
+                              : 0;
+                        return s + Math.min(100, Math.max(0, raw));
+                      }, 0) / item.result.pathways.length,
+                    )
+                  : topScore;
               return (
                 <RecentAssessmentCard key={item.id} item={item}>
                   <div className="flex flex-wrap items-start justify-between gap-3">

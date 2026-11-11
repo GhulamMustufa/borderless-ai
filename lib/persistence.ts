@@ -10,17 +10,37 @@ export type UserSubscription = {
   currentPeriodEnd: string | null;
 };
 
+export type PersistedPathway = {
+  pathwayId?: string;
+  name: string;
+  country: string;
+  score: number;
+  baseScore?: number;
+  status?: string;
+  scoreBreakdown?: {
+    eligibilityFit: number;
+    profileStrength: number;
+    evidenceQuality: number;
+    competitiveness: number;
+  };
+  satisfiedRequirements?: unknown[];
+  missingRequirements?: unknown[];
+  blockingRequirements?: unknown[];
+  marginalImprovements?: unknown[];
+  reason: string;
+  weaknesses: string[];
+  documents: string[];
+  next_steps: string[];
+  citations?: Array<{ title: string; url: string }>;
+  estimated_timeline?: string;
+  top_improvement?: string;
+  source_freshness?: string;
+};
+
 type PersistedResult = {
-  pathways: Array<{
-    name: string;
-    country: string;
-    score: number;
-    reason: string;
-    weaknesses: string[];
-    documents: string[];
-    next_steps: string[];
-    citations?: Array<{ title: string; url: string }>;
-  }>;
+  overall_score?: number;
+  summary?: string;
+  pathways: PersistedPathway[];
 };
 
 export type HistoryItem = {
@@ -220,6 +240,39 @@ export async function getUserSubscription(
   }
 }
 
+export async function getUserSubscriptionByCustomerId(
+  stripeCustomerId: string,
+): Promise<UserSubscription | null> {
+  const p = getPool();
+  if (!p) return null;
+  try {
+    const res = await p.query(
+      `select user_id, stripe_customer_id, stripe_subscription_id,
+              plan, status, current_period_end
+       from public.user_subscriptions
+       where stripe_customer_id = $1
+       limit 1`,
+      [stripeCustomerId],
+    );
+    const row = res.rows[0];
+    if (!row) return null;
+    return {
+      userId: String(row.user_id),
+      stripeCustomerId: row.stripe_customer_id ?? null,
+      stripeSubscriptionId: row.stripe_subscription_id ?? null,
+      plan: row.plan === "pro" ? "pro" : "free",
+      status: (["active", "canceled", "past_due"].includes(row.status)
+        ? row.status
+        : "active") as UserSubscription["status"],
+      currentPeriodEnd: row.current_period_end
+        ? new Date(row.current_period_end).toISOString()
+        : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function upsertUserSubscription(params: {
   userId: string;
   stripeCustomerId?: string;
@@ -227,9 +280,15 @@ export async function upsertUserSubscription(params: {
   plan: "free" | "pro";
   status: "active" | "canceled" | "past_due";
   currentPeriodEnd?: Date | null;
+  throwOnError?: boolean;
 }): Promise<void> {
   const p = getPool();
-  if (!p) return;
+  if (!p) {
+    if (params.throwOnError) {
+      throw new Error("Database pool unavailable for subscription update");
+    }
+    return;
+  }
   try {
     await p.query(
       `insert into public.user_subscriptions
@@ -251,8 +310,11 @@ export async function upsertUserSubscription(params: {
         params.currentPeriodEnd ?? null,
       ],
     );
-  } catch {
-    // Silently ignore — subscription state will sync on next webhook.
+  } catch (err) {
+    if (params.throwOnError) {
+      throw err;
+    }
+    // Non-webhook callers keep best-effort behavior.
   }
 }
 

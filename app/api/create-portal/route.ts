@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, resolveTrustedOrigin } from "@/lib/stripe";
 import { getUserSubscription } from "@/lib/persistence";
 
 export async function POST(req: Request) {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No billing account found" }, { status: 404 });
   }
 
-  const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const origin = resolveTrustedOrigin(req);
 
   const session = await getStripe().billingPortal.sessions.create({
     customer: subscription.stripeCustomerId,

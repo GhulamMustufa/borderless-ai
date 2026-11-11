@@ -1,3 +1,5 @@
+import type { TargetRegion } from "./types";
+
 export type RegionMeta = {
   id: string;
   name: string;
@@ -303,3 +305,33 @@ export const REGIONS: RegionMeta[] = [
     ]
   }
 ];
+
+export const EXPLORE_TO_FORM_REGION_MAP: Record<
+  string,
+  { targetRegion: TargetRegion; label: string }
+> = {
+  canada: { targetRegion: "canada", label: "Canada" },
+  uk: { targetRegion: "uk", label: "UK" },
+  anz: { targetRegion: "australia-new-zealand", label: "Australia/New Zealand" },
+  "australia-new-zealand": { targetRegion: "australia-new-zealand", label: "Australia/New Zealand" },
+  "germany-nordics": { targetRegion: "germany-nordics", label: "Germany/Northern Europe" },
+  "southern-europe": { targetRegion: "southern-europe", label: "Southern Europe" },
+  "middle-east": { targetRegion: "middle-east", label: "Middle East" },
+  usa: { targetRegion: "usa", label: "USA" },
+  "sg-my": { targetRegion: "sg-my", label: "Singapore/Malaysia" },
+  "jp-kr": { targetRegion: "jp-kr", label: "Japan/South Korea" },
+  "easy-entry": { targetRegion: "easy-entry", label: "Easy Entry Countries" },
+  latam: { targetRegion: "latam", label: "Latin America" },
+  "eastern-europe": { targetRegion: "eastern-europe", label: "Eastern Europe & Caucasus" },
+  "greater-china": { targetRegion: "greater-china", label: "Greater China" },
+  africa: { targetRegion: "africa", label: "Africa" },
+  "canada-uk": { targetRegion: "canada", label: "Canada/UK" },
+};
+
+export const CERTIFIED_TARGET_REGIONS = new Set<TargetRegion>([
+  "canada",
+  "uk",
+  "usa",
+  "germany-nordics",
+  "australia-new-zealand",
+]);

@@ -1,8 +1,9 @@
 "use client";
 
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport, type UIMessage } from 'ai';
 import { useAuth, SignInButton } from '@clerk/nextjs';
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 
 interface ChatThread {
@@ -13,21 +14,19 @@ interface ChatThread {
 
 export default function ChatPage() {
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+  const activeThreadIdRef = useRef<string | null>(null);
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [loadingThreads, setLoadingThreads] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { isSignedIn, isLoaded } = useAuth();
-  const [messageCount, setMessageCount] = useState(0);
+  const isSignedInRef = useRef(isSignedIn);
+  isSignedInRef.current = isSignedIn;
+
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isChatLoaded, setIsChatLoaded] = useState(false);
 
-  const chatHelpers = useChat();
-  const { messages, setMessages, status, sendMessage } = chatHelpers;
-  const isLoading = status === 'submitted' || status === 'streaming';
-
-  const fetchThreads = async () => {
+  const fetchThreads = useCallback(async () => {
     if (!isSignedIn) return;
     try {
       setLoadingThreads(true);
@@ -41,21 +40,62 @@ export default function ChatPage() {
     } finally {
       setLoadingThreads(false);
     }
-  };
+  }, [isSignedIn]);
+
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport<UIMessage>({
+        api: "/api/chat",
+        prepareSendMessagesRequest: ({ messages, body }) => ({
+          body: {
+            ...(body ?? {}),
+            messages,
+            threadId: (body as Record<string, unknown> | undefined)?.threadId ?? activeThreadIdRef.current ?? undefined,
+          },
+        }),
+        fetch: async (input, init) => {
+          const res = await fetch(input, init);
+          const serverThreadId = res.headers.get("X-Thread-Id");
+          if (serverThreadId && activeThreadIdRef.current !== serverThreadId) {
+            activeThreadIdRef.current = serverThreadId;
+            setActiveThreadId(serverThreadId);
+          }
+          return res;
+        },
+      }),
+    [],
+  );
+
+  const { messages, setMessages, status, sendMessage, error, clearError } = useChat({
+    transport,
+    onFinish: () => {
+      if (isSignedInRef.current) {
+        void fetchThreads();
+      }
+    },
+  });
+
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   // Load threads when authenticated
   useEffect(() => {
     if (isSignedIn) {
-      fetchThreads();
+      void fetchThreads();
+    } else {
+      activeThreadIdRef.current = null;
+      setActiveThreadId(null);
+      setThreads([]);
     }
-  }, [isSignedIn]);
+  }, [isSignedIn, fetchThreads]);
 
   // Load messages when selecting a thread
   const selectThread = async (threadId: string) => {
+    clearError?.();
+    activeThreadIdRef.current = threadId;
     setActiveThreadId(threadId);
     setSidebarOpen(false);
     try {
-      const res = await fetch(`/api/chat?threadId=${threadId}`);
+      const res = await fetch(`/api/chat?threadId=${encodeURIComponent(threadId)}`);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data.messages)) {
@@ -63,7 +103,7 @@ export default function ChatPage() {
             data.messages.map((m: any) => ({
               id: m.id,
               role: m.role,
-              content: m.content,
+              parts: [{ type: 'text', text: m.content }],
             }))
           );
         }
@@ -74,74 +114,34 @@ export default function ChatPage() {
   };
 
   const startNewChat = () => {
+    clearError?.();
+    activeThreadIdRef.current = null;
     setActiveThreadId(null);
     setMessages([]);
-    localStorage.removeItem('chatHistory');
     setSidebarOpen(false);
   };
 
-  // Guest usage limits
-  useEffect(() => {
-    if (!isSignedIn) {
-      const used = localStorage.getItem('freeMessagesUsed');
-      if (used) {
-        setMessageCount(parseInt(used, 10));
-      }
-    }
-  }, [isSignedIn]);
-
-  // Guest localStorage backup
-  useEffect(() => {
-    if (!isSignedIn) {
-      const savedChat = localStorage.getItem('chatHistory');
-      if (savedChat) {
-        try {
-          setMessages(JSON.parse(savedChat));
-        } catch (e) {
-          console.error("Failed to parse chat history", e);
-        }
-      }
-      setIsChatLoaded(true);
-    } else {
-      setIsChatLoaded(true);
-    }
-  }, [isSignedIn, setMessages]);
-
-  useEffect(() => {
-    if (!isSignedIn && isChatLoaded) {
-      localStorage.setItem('chatHistory', JSON.stringify(messages));
-    }
-  }, [messages, isChatLoaded, isSignedIn]);
-
   const handleFormSubmit = async (e?: React.FormEvent, customValue?: string) => {
     if (e) e.preventDefault();
+    if (!isSignedIn) return;
+
     const content = customValue || inputValue;
-    if (!content.trim()) return;
-    
+    if (!content.trim() || isLoading) return;
+
+    clearError?.();
     setInputValue("");
-    
+
     try {
       await sendMessage(
         { text: content },
         {
           body: {
-            threadId: activeThreadId,
+            threadId: activeThreadIdRef.current ?? undefined,
           },
         }
       );
-      
-      if (!isSignedIn) {
-        setMessageCount((prev) => {
-          const next = prev + 1;
-          localStorage.setItem('freeMessagesUsed', next.toString());
-          return next;
-        });
-      } else {
-        // Refresh threads list in background so new conversation title appears
-        setTimeout(fetchThreads, 1500);
-      }
     } catch (err) {
-      console.error("Failed to append message:", err);
+      console.error("Failed to send chat message:", err);
     }
   };
 
@@ -149,17 +149,15 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const isLimitReached = !isSignedIn && messageCount >= 3;
-
   return (
     <div className="flex h-[calc(100vh-3.5rem)] bg-slate-50 dark:bg-[#0a0a0a] font-sans overflow-hidden">
-      
+
       {/* Sidebar for Authenticated Users */}
       {isSignedIn && (
         <>
           {/* Mobile Overlay */}
           {sidebarOpen && (
-            <div 
+            <div
               onClick={() => setSidebarOpen(false)}
               className="fixed inset-0 z-40 bg-black/50 md:hidden"
             />
@@ -225,7 +223,7 @@ export default function ChatPage() {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
-        
+
         {/* Top Chat Bar */}
         <div className="h-11 border-b border-slate-200 dark:border-slate-800 px-4 flex items-center justify-between bg-white dark:bg-[#111]">
           <div className="flex items-center gap-2">
@@ -259,8 +257,8 @@ export default function ChatPage() {
         {/* Messages Scroll Area */}
         <div className="flex-1 overflow-y-auto w-full">
           <div className="p-4 sm:p-6 w-full max-w-4xl mx-auto space-y-8 pb-32">
-            
-            {isChatLoaded && messages.length === 0 && (
+
+            {isLoaded && messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-in fade-in zoom-in duration-500 pt-10">
                 <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg rotate-2">
                   <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -275,24 +273,48 @@ export default function ChatPage() {
                     Ask me anything about moving abroad. I am strictly bound to official immigration policies and legal thresholds.
                   </p>
                 </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mt-4">
-                  <div 
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors" 
-                    onClick={() => handleFormSubmit(undefined, "What are the requirements for Germany's Opportunity Card (Chancenkarte)?")}
-                  >
-                    "What are the requirements for Germany's Opportunity Card (Chancenkarte)?"
+
+                {isSignedIn ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mt-4">
+                    <button
+                      type="button"
+                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors"
+                      onClick={() => handleFormSubmit(undefined, "What are the requirements for Germany's Opportunity Card (Chancenkarte)?")}
+                    >
+                      &ldquo;What are the requirements for Germany&apos;s Opportunity Card (Chancenkarte)?&rdquo;
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors"
+                      onClick={() => handleFormSubmit(undefined, "Do I need a job offer for the Canadian Express Entry?")}
+                    >
+                      &ldquo;Do I need a job offer for Canadian Express Entry?&rdquo;
+                    </button>
                   </div>
-                  <div 
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors" 
-                    onClick={() => handleFormSubmit(undefined, "Do I need a job offer for the Canadian Express Entry?")}
+                ) : (
+                  <div
+                    data-testid="chat-signin-gate"
+                    className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4 mt-2"
                   >
-                    "Do I need a job offer for Canadian Express Entry?"
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                      Sign in required for verified AI chat
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Conversations are scoped to certified government sources and saved securely to your consultation history.
+                    </p>
+                    <SignInButton mode="modal">
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 text-sm transition-all shadow-sm"
+                      >
+                        Sign In to Start Chatting
+                      </button>
+                    </SignInButton>
                   </div>
-                </div>
+                )}
               </div>
             )}
-            
+
             {messages.map((m) => (
               <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {m.role !== 'user' && (
@@ -302,23 +324,23 @@ export default function ChatPage() {
                     </svg>
                   </div>
                 )}
-                
+
                 <div className={`max-w-[85%] sm:max-w-[80%] px-5 py-4 shadow-sm ${
-                  m.role === 'user' 
-                    ? 'bg-indigo-600 text-white rounded-2xl rounded-br-sm' 
+                  m.role === 'user'
+                    ? 'bg-indigo-600 text-white rounded-2xl rounded-br-sm'
                     : 'bg-white dark:bg-[#111] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-sm'
                 }`}>
                   <div className="prose prose-sm prose-slate dark:prose-invert max-w-none">
                     <Markdown>
-                      {(m as any).content || 
-                       (m.parts && m.parts.map((p: any) => p.type === 'text' ? p.text : '').join('')) || 
+                      {(m as any).content ||
+                       (m.parts && m.parts.map((p: any) => p.type === 'text' ? p.text : '').join('')) ||
                        ""}
                     </Markdown>
                   </div>
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
@@ -333,6 +355,23 @@ export default function ChatPage() {
                 </div>
               </div>
             )}
+
+            {error && (
+              <div
+                data-testid="chat-error"
+                className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-4 py-3 text-xs text-rose-700 dark:text-rose-300"
+              >
+                <span>{error.message || "Unable to complete request. Please try again."}</span>
+                <button
+                  type="button"
+                  onClick={() => clearError?.()}
+                  className="font-semibold underline hover:no-underline shrink-0"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
         </div>
@@ -340,14 +379,16 @@ export default function ChatPage() {
         {/* Input Area */}
         <div className="p-4 bg-white dark:bg-[#0a0a0a] border-t border-slate-200 dark:border-slate-800 w-full z-10 relative">
           <div className="max-w-4xl mx-auto">
-            {isLimitReached ? (
-              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 rounded-xl p-6 text-center animate-in slide-in-from-bottom-4">
-                <h3 className="text-indigo-900 dark:text-indigo-200 font-semibold mb-2">Free Consultation Complete</h3>
-                <p className="text-sm text-indigo-700 dark:text-indigo-300/80 mb-5">
-                  You've used your 3 free messages. Please sign in to save your history and continue chatting with Borderless AI.
-                </p>
+            {isLoaded && !isSignedIn ? (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-4 py-3">
+                <span className="text-xs text-slate-600 dark:text-slate-300">
+                  Please sign in to send messages to Borderless AI Copilot.
+                </span>
                 <SignInButton mode="modal">
-                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-lg transition-all shadow-sm hover:shadow-md">
+                  <button
+                    type="button"
+                    className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
                     Sign In to Continue
                   </button>
                 </SignInButton>
@@ -357,16 +398,13 @@ export default function ChatPage() {
                 <input
                   className="w-full bg-transparent border-none py-4 pl-6 pr-14 focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 text-sm"
                   value={inputValue}
-                  placeholder={
-                    !isSignedIn
-                      ? `Ask a visa question... (${Math.max(0, 3 - messageCount)} free messages left)` 
-                      : "Ask about a visa, e.g., 'What are the rules for Germany's opportunity card?'"
-                  }
+                  disabled={!isLoaded || !isSignedIn}
+                  placeholder="Ask about a visa, e.g., 'What are the rules for Germany's opportunity card?'"
                   onChange={(e) => setInputValue(e.target.value)}
                 />
                 <button
                   type="submit"
-                  disabled={isLoading || !inputValue.trim()}
+                  disabled={!isLoaded || !isSignedIn || isLoading || !inputValue.trim()}
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5 ml-0.5">

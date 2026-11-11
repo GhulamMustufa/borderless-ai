@@ -30,6 +30,7 @@ export type VisaProfile = {
   testScore: number | null;
   savingsUsd: number;
   goal: Goal;
+  hasJobOffer?: boolean;
 };
 
 export type CEFRLevel = "none" | "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
@@ -40,6 +41,7 @@ export type NormalizedProfile = {
   languageLevelCEFR: CEFRLevel;
   isSTEM: boolean;
   isHealthcare: boolean;
+  hasJobOffer?: boolean;
 };
 
 export type VisaOption = {
@@ -175,6 +177,8 @@ export type Evidence = {
   source_url: string;
   source_title: string;
   verification_status: string;
+  human_reviewed_at?: string | Date | null;
+  human_reviewed_by?: string | null;
   content_hash: string;
   content: string;
 };

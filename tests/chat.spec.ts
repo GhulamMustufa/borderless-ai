@@ -1,120 +1,194 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Chat Interface', () => {
-
+test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
   test.beforeEach(async ({ page }) => {
-    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-    page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    
-    // Clear localStorage before navigation
     await page.addInitScript(() => {
       window.localStorage.clear();
+      window.sessionStorage.clear();
     });
+  });
 
-    // Mock /api/chat to ensure fast, deterministic E2E tests in CI without external API flakiness
+  test('/chat enforces guest Sign-In gate with zero free-message tracking or 401 leakage', async ({ page }) => {
+    let postChatCalls = 0;
+
     await page.route('**/api/chat*', async (route) => {
       if (route.request().method() === 'POST') {
-        // Add a short delay (400ms) so loading state (.animate-bounce) is reliably rendered and asserted
-        await new Promise((resolve) => setTimeout(resolve, 400));
+        postChatCalls += 1;
         await route.fulfill({
-          status: 200,
-          headers: {
-            'Content-Type': 'text/event-stream; charset=utf-8',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'x-vercel-ai-ui-message-stream': 'v1',
-          },
-          body: 'data: {"type":"text-delta","textDelta":"I am Borderless AI, your immigration assistant. Here are the verified legal details for your query."}\n\ndata: [DONE]\n\n',
-        });
-      } else {
-        await route.fulfill({
-          status: 200,
+          status: 401,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ threads: [], messages: [] }),
+          body: JSON.stringify({ error: 'Unauthorized' }),
         });
+        return;
       }
+      await route.fulfill({
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      });
     });
-    
-    // Start each test by visiting the chat page
+
     await page.goto('/chat');
+
+    await expect(page.locator('h1', { hasText: 'Borderless AI Immigration Copilot' })).toBeVisible();
+    await expect(page.getByTestId('chat-signin-gate')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: 'Sign In to Start Chatting' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign In to Continue' })).toBeVisible();
+
+    await expect(page.locator('text=Free Consultation Complete')).toHaveCount(0);
+    await expect(page.locator('text=3 free messages')).toHaveCount(0);
+
+    const storedFreeCount = await page.evaluate(() => window.localStorage.getItem('freeMessagesUsed'));
+    expect(storedFreeCount).toBeNull();
+    expect(postChatCalls).toBe(0);
   });
 
-  test('Initial Render & UI Verification', async ({ page }) => {
-    // Verify Header exists
-    await expect(page.locator('h1', { hasText: 'Borderless AI' })).toBeVisible();
+  test('/explore -> /form?region=anz preselects Australia/New Zealand accurately', async ({ page }) => {
+    await page.goto('/explore');
+    await expect(page.locator('h1', { hasText: 'Explore Immigration Options by Region' })).toBeVisible();
 
-    // Verify the two suggestion buttons exist using getByText
-    await expect(page.getByText("What are the requirements for Germany's Opportunity Card (Chancenkarte)?").first()).toBeVisible();
-    await expect(page.getByText("Do I need a job offer for Canadian Express Entry?").first()).toBeVisible();
+    const anzCard = page.locator('article').filter({ hasText: 'Australia / New Zealand' }).first();
+    await expect(anzCard).toBeVisible();
+    await anzCard.getByRole('link', { name: 'Check My Chances' }).click();
 
-    // Verify input placeholder states 3 free messages
-    const input = page.locator('input').first();
-    await expect(input).toBeVisible();
-
-    // Verify submit button is disabled initially
-    const submitBtn = page.locator('button[type="submit"]');
-    await expect(submitBtn).toBeDisabled();
+    await expect(page).toHaveURL(/\/form\?region=anz$/);
+    await expect(page.getByText('Selected region: Australia/New Zealand')).toBeVisible();
+    await expect(page.locator('#targetRegion')).toHaveValue('australia-new-zealand');
+    await expect(page.getByTestId('uncertified-region-notice')).toHaveCount(0);
   });
 
-  test('Suggestion Button Interaction', async ({ page }) => {
-    // Click the first suggestion button
-    await page.getByText("What are the requirements for Germany's Opportunity Card (Chancenkarte)?").first().click();
+  test('/form validates inputs, shows uncertified preview notice, submits hasJobOffer, and renders /results', async ({ page }) => {
+    const captured = { payload: null as Record<string, unknown> | null };
 
-    // Verify the user message appeared in the chat history
-    await expect(page.getByText("What are the requirements for Germany's Opportunity Card (Chancenkarte)?").last()).toBeVisible();
+    await page.route('**/api/score', async (route) => {
+      captured.payload = route.request().postDataJSON() as Record<string, unknown>;
+      await route.fulfill({
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          overall_score: 76,
+          summary: 'Mocked assessment grounded in verified UK and Canadian guidance.',
+          pathways: [
+            {
+              pathwayId: 'uk-skilled-worker',
+              name: 'Skilled Worker Visa',
+              country: 'UK',
+              status: 'ELIGIBLE',
+              baseScore: 84,
+              maxScore: 100,
+              scoreBreakdown: {
+                eligibilityFit: 84,
+                profileStrength: 82,
+                evidenceQuality: 100,
+                competitiveness: 78,
+              },
+              satisfiedRequirements: [
+                {
+                  id: 'req-uk-sponsor',
+                  type: 'hard',
+                  description: 'Must hold a Certificate of Sponsorship from a licensed UK employer.',
+                  pointsAwarded: 50,
+                  met: true,
+                  scoreImpact: 50,
+                },
+                {
+                  id: 'req-uk-lang',
+                  type: 'hard',
+                  description: 'English language proficiency of at least CEFR B1 (IELTS 4.0).',
+                  pointsAwarded: 10,
+                  met: true,
+                  scoreImpact: 10,
+                },
+              ],
+              missingRequirements: [],
+              blockingRequirements: [],
+              marginalImprovements: [],
+              reason: 'Applicant meets language and employer sponsorship criteria.',
+              weaknesses: ['Visa fees and Immigration Health Surcharge apply'],
+              documents: ['Valid passport', 'Certificate of Sponsorship reference'],
+              next_steps: ['Obtain official Certificate of Sponsorship code from employer'],
+              citations: [
+                {
+                  title: 'GOV.UK Skilled Worker Visa',
+                  url: 'https://www.gov.uk/skilled-worker-visa',
+                },
+              ],
+              estimated_timeline: '3-8 weeks',
+              top_improvement: 'Maintain valid sponsorship details',
+              source_freshness: 'VERIFIED',
+            },
+          ],
+        }),
+      });
+    });
 
-    // Verify the animated loading indicator appears
-    await expect(page.locator('.animate-bounce').first()).toBeVisible();
+    await page.goto('/form');
 
-    // Wait for the AI to respond
-    await expect(page.locator('.animate-bounce').first()).toBeHidden({ timeout: 60000 });
+    // Selecting an uncertified region surfaces an explicit preview notice
+    await page.locator('#targetRegion').selectOption('southern-europe');
+    await expect(page.getByTestId('uncertified-region-notice')).toBeVisible();
+
+    // Switching to certified UK hides the notice
+    await page.locator('#targetRegion').selectOption('uk');
+    await expect(page.getByTestId('uncertified-region-notice')).toHaveCount(0);
+
+    // Step 1 validation error renders in [data-testid="form-error"]
+    await page.locator('#age').fill('15');
+    await page.getByRole('button', { name: 'Continue' }).click();
+    await expect(page.getByTestId('form-error')).toContainText('Age must be between 18 and 80.');
+
+    await page.locator('#age').fill('29');
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    // Step 2 includes hasJobOffer toggle
+    await expect(page.locator('#education')).toBeVisible();
+    await expect(page.locator('#hasJobOffer')).toBeVisible();
+    await page.locator('#hasJobOffer').check();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    // Step 3 validation check for IELTS out-of-bounds score
+    await page.locator('#englishTest').selectOption('ielts');
+    await page.locator('#testScore').fill('12');
+    await page.getByRole('button', { name: 'Check My Chances' }).click();
+    await expect(page.getByTestId('form-error')).toContainText('IELTS overall band is usually 0–9.');
+
+    await page.locator('#testScore').fill('7.5');
+    await page.getByRole('button', { name: 'Check My Chances' }).click();
+
+    await expect(page).toHaveURL(/\/results$/);
+    expect(captured.payload).not.toBeNull();
+    expect(captured.payload?.targetRegion).toBe('uk');
+    expect(captured.payload?.hasJobOffer).toBe(true);
+    expect(captured.payload?.testScore).toBe(7.5);
+
+    await expect(page.locator('h1', { hasText: 'Your Visa Strategy' })).toBeVisible();
+    await expect(page.getByText('Skilled Worker Visa')).toBeVisible();
+    await expect(page.getByText('Must hold a Certificate of Sponsorship from a licensed UK employer.')).toBeVisible();
+    await expect(page.getByText('No major strengths detected.')).toHaveCount(0);
+
+    // Verify citation inspection drawer opens official GOV.UK link
+    await page.getByRole('button', { name: 'Inspect Sources' }).click();
+    await expect(page.getByRole('link', { name: /GOV\.UK Skilled Worker Visa/ })).toBeVisible();
   });
 
-  test('Form Submission & Loading State', async ({ page }) => {
-    const input = page.locator('input').first();
-    const submitBtn = page.locator('button[type="submit"]');
-    
-    await input.pressSequentially('What is the capital of France?');
-    await expect(submitBtn).toBeEnabled();
-    
-    await submitBtn.click();
+  test('Home 1-click demo navigates cleanly to /results and What-If Simulator recalculates scores', async ({ page }) => {
+    await page.goto('/');
 
-    // Verify input is cleared
-    await expect(input).toHaveValue('');
+    await expect(page.locator('text=3 free consultation questions')).toHaveCount(0);
 
-    // Verify the user message appeared in the chat history
-    await expect(page.locator('text=What is the capital of France?')).toBeVisible();
+    await page.getByRole('button', { name: /Open Full Interactive Results Report/ }).click();
+    await expect(page).toHaveURL(/\/results$/);
+    await expect(page.locator('h1', { hasText: 'Your Visa Strategy' })).toBeVisible();
+    await expect(page.getByText('What-If Simulator')).toBeVisible();
 
-    // Verify the animated loading indicator appears
-    await expect(page.locator('.animate-bounce').first()).toBeVisible();
+    const firstBreakdownValue = page.locator('section', { hasText: 'Score Breakdown' }).first();
+    const initialText = await firstBreakdownValue.textContent();
 
-    // Wait for the AI to respond
-    await expect(page.locator('.animate-bounce').first()).toBeHidden({ timeout: 60000 });
-  });
+    // Downgrade Education in What-If Simulator to High School & clear English Test to verify reactive recalculation
+    const simulatorCard = page.locator('div', { has: page.locator('h2', { hasText: 'What-If Simulator' }) }).first();
+    await simulatorCard.locator('select').nth(0).selectOption('none');
+    await simulatorCard.locator('select').nth(1).selectOption('high_school');
 
-  test('Free Tier Limitation Enforcement', async ({ page }) => {
-    const input = page.locator('input').first();
-    const submitBtn = page.locator('button[type="submit"]');
-
-    // We will send 3 short messages to hit the limit.
-    for (let i = 1; i <= 3; i++) {
-      await input.fill(`Test message ${i}`);
-      await expect(submitBtn).toBeEnabled();
-      await submitBtn.click();
-      
-      // Wait for the response to begin loading and then finish streaming
-      await expect(page.locator('.animate-bounce').first()).toBeVisible();
-      await expect(page.locator('.animate-bounce').first()).toBeHidden({ timeout: 60000 });
-    }
-
-    // Now that 3 messages are sent, the free limit should be reached.
-    // The input box should no longer be visible.
-    await expect(input).toBeHidden();
-
-    // The "Free Consultation Complete" banner should appear
-    await expect(page.locator('text=Free Consultation Complete')).toBeVisible();
-
-    // The "Sign In to Continue" button should be visible
-    await expect(page.locator('button', { hasText: 'Sign In to Continue' })).toBeVisible();
+    await expect(firstBreakdownValue).not.toHaveText(initialText || '');
   });
 });

@@ -13,14 +13,22 @@ export function RecentAssessmentCard({
   const router = useRouter();
 
   const handleClick = () => {
-    // Rehydrate the stored result format
+    // Rehydrate the stored result format completely so timeline, breakdown, and strengths survive reload
     const storedData = {
+      overall_score: typeof item.result?.overall_score === "number" ? item.result.overall_score : 0,
+      summary: typeof item.result?.summary === "string" ? item.result.summary : "",
       profileSummary: item.profile,
-      pathways: (item.result?.pathways || []).map((p: any) => ({
+      pathways: (item.result?.pathways || []).map((p: any, idx: number) => ({
         ...p,
+        pathwayId: p.pathwayId || `saved-pathway-${idx}`,
         baseScore: typeof p.baseScore === "number" ? p.baseScore : (typeof p.score === "number" ? p.score : 0),
+        maxScore: typeof p.maxScore === "number" ? p.maxScore : 100,
+        status: p.status || "CONDITIONALLY_ELIGIBLE",
+        satisfiedRequirements: Array.isArray(p.satisfiedRequirements) ? p.satisfiedRequirements : [],
+        missingRequirements: Array.isArray(p.missingRequirements) ? p.missingRequirements : [],
+        blockingRequirements: Array.isArray(p.blockingRequirements) ? p.blockingRequirements : [],
+        marginalImprovements: Array.isArray(p.marginalImprovements) ? p.marginalImprovements : [],
       })),
-      whatIfs: item.result?.whatIfs || []
     };
     
     sessionStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(storedData));

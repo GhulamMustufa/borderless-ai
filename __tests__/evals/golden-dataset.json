@@ -24,7 +24,7 @@
   {
     "id": "CASE-004",
     "description": "Clearly eligible UK Skilled Worker (Has job offer/sponsor)",
-    "profile": { "nationality": "philippines", "targetRegion": "uk", "age": 26, "education": "bachelor", "yearsExperience": 3, "fieldOfWork": "nurse", "englishTest": "ielts", "testScore": 7, "savingsUsd": 5000, "goal": "work" },
+    "profile": { "nationality": "philippines", "targetRegion": "uk", "age": 26, "education": "bachelor", "yearsExperience": 3, "fieldOfWork": "nurse", "englishTest": "ielts", "testScore": 7, "savingsUsd": 5000, "goal": "work", "hasJobOffer": true },
     "expected_pathway": "uk-skilled-worker",
     "expected_status": "ELIGIBLE"
   },
@@ -170,8 +170,8 @@
   },
   {
     "id": "CASE-025",
-    "description": "Germany Blue Card (High Salary, IT)",
-    "profile": { "nationality": "india", "targetRegion": "germany-nordics", "age": 28, "education": "bachelor", "yearsExperience": 5, "fieldOfWork": "software engineer", "englishTest": "ielts", "testScore": 7, "savingsUsd": 15000, "goal": "work" },
+    "description": "Germany Blue Card (High Salary, IT, with Job Offer)",
+    "profile": { "nationality": "india", "targetRegion": "germany-nordics", "age": 28, "education": "bachelor", "yearsExperience": 5, "fieldOfWork": "software engineer", "englishTest": "ielts", "testScore": 7, "savingsUsd": 15000, "goal": "work", "hasJobOffer": true },
     "expected_pathway": "de-blue-card",
     "expected_status": "ELIGIBLE"
   },

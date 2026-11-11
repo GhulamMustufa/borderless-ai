@@ -53,5 +53,6 @@ export function normalizeProfile(profile: VisaProfile): NormalizedProfile {
     languageLevelCEFR: normalizeLanguageScore(profile.englishTest, profile.testScore),
     isSTEM: checkSTEM(canonicalOccupation),
     isHealthcare: checkHealthcare(canonicalOccupation),
+    hasJobOffer: Boolean(profile.hasJobOffer),
   };
 }

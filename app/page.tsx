@@ -369,7 +369,7 @@ export default function Home() {
                 <span className="text-emerald-500 font-bold">✓</span> Persistent chat threads saved to your cloud account
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> 3 free consultation questions for guest users
+                <span className="text-emerald-500 font-bold">✓</span> Included free with your Borderless AI account
               </li>
             </ul>
             <div className="mt-6">

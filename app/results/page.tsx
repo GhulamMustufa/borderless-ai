@@ -70,10 +70,14 @@ function simulatePathway(
     initialProfile.englishTest !== simProfile.englishTest ||
     initialProfile.testScore !== simProfile.testScore;
 
+  const hasOriginalScore =
+    (typeof pathway.baseScore === "number" && Number.isFinite(pathway.baseScore)) ||
+    (typeof (pathway as any).score === "number" && Number.isFinite((pathway as any).score));
+
   const originalScore =
-    typeof pathway.baseScore === "number" && !isNaN(pathway.baseScore)
+    typeof pathway.baseScore === "number" && Number.isFinite(pathway.baseScore)
       ? pathway.baseScore
-      : typeof (pathway as any).score === "number" && !isNaN((pathway as any).score)
+      : typeof (pathway as any).score === "number" && Number.isFinite((pathway as any).score)
         ? (pathway as any).score
         : 0;
 
@@ -89,24 +93,22 @@ function simulatePathway(
     100,
     Math.max(0, Math.round(((initialH.langPts + initialH.expPts + initialH.savingsPts) / 72) * 100))
   );
-  const baselineScore = originalScore > 0 ? originalScore : initialH.total;
+  const baselineScore = hasOriginalScore ? originalScore : initialH.total;
 
   if (!isChanged) {
     return {
       ...pathway,
       baseScore: baselineScore,
       scoreBreakdown: {
-        eligibilityFit: baselineScore,
-        profileStrength: baselineProfileStrength,
-        competitiveness: baselineCompetitiveness,
-        evidenceQuality: pathway.scoreBreakdown?.evidenceQuality || 100,
+        eligibilityFit: pathway.scoreBreakdown?.eligibilityFit ?? baselineScore,
+        profileStrength: pathway.scoreBreakdown?.profileStrength ?? baselineProfileStrength,
+        competitiveness: pathway.scoreBreakdown?.competitiveness ?? baselineCompetitiveness,
+        evidenceQuality: pathway.scoreBreakdown?.evidenceQuality ?? 100,
       },
     };
   }
 
-  const rawScore = originalScore === 0
-    ? simH.total
-    : originalScore + delta;
+  const rawScore = !hasOriginalScore ? simH.total : originalScore + delta;
 
   const newBaseScore = Math.min(100, Math.max(0, Math.round(rawScore)));
 

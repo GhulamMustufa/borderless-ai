@@ -1,10 +1,7 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { evaluateSynthesizerOutput } from "../lib/critic";
+import { openAiCircuitBreaker } from "../lib/circuit-breaker";
 import type { DeterministicEvaluation, Evidence } from "../lib/types";
-import { describe, it, expect } from "vitest";
-
-// Note: To run this test you would need a valid OPENAI_API_KEY in process.env,
-// or mock the global fetch. For demonstration, we'll write the test structure.
-// Run with: npx vitest __tests__/agent.test.ts
 
 describe("AI Critic Agent", () => {
   const mockEvaluations: DeterministicEvaluation[] = [
@@ -17,8 +14,8 @@ describe("AI Critic Agent", () => {
       satisfiedRequirements: [],
       missingRequirements: [],
       blockingRequirements: [],
-      marginalImprovements: []
-    }
+      marginalImprovements: [],
+    },
   ];
 
   const mockEvidence: Evidence[] = [
@@ -35,56 +32,65 @@ describe("AI Critic Agent", () => {
       retrieved_at: new Date().toISOString(),
       verification_status: "VERIFIED",
       content_hash: "hash",
-      content: "Requires 1 year experience"
-    }
+      content: "Requires 1 year experience",
+    },
   ];
 
-  it("should reject output that hallucinates approval probability", async () => {
-    const synthesizerOutput = `
-      {
-        "summary": "You have a strong profile.",
-        "pathways": [
-          {
-            "name": "ca-express-entry",
-            "eligibilityStatus": "ELIGIBLE",
-            "reason": "You have a 85% chance of approval.",
-            "citations": [
-              { "title": "Fake Gov", "url": "https://fake.ca" }
-            ]
-          }
-        ]
-      }
-    `;
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
 
-    // In a real run, this requires an API key, so we mock it.
-    const apiKey = process.env.OPENAI_API_KEY || "dummy";
-    
-    // We expect the critic to flag:
-    // 1. Probabilistic claim (85% chance)
-    // 2. Contradictory status (ELIGIBLE instead of BLOCKED)
-    // 3. Hallucinated URL (https://fake.ca)
-    
-    // For test environment without a real key, we simply assert the structure exists.
-    expect(evaluateSynthesizerOutput).toBeDefined();
+  it("returns critic rejection when mocked LLM output violates rules", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    approved: false,
+                    feedback: ["Hallucinated URL https://fake.ca and contradicts BLOCKED status"],
+                    hallucinated_claims: ["https://fake.ca", "85% chance of approval"],
+                  }),
+                },
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        )
+      )
+    );
+
+    const result = await evaluateSynthesizerOutput(
+      "sk-test-dummy",
+      JSON.stringify({ summary: "85% chance", pathways: [{ name: "ca-express-entry", eligibilityStatus: "ELIGIBLE" }] }),
+      mockEvaluations,
+      mockEvidence
+    );
+
+    expect(result.approved).toBe(false);
+    expect(result.feedback.length).toBeGreaterThan(0);
+    expect(result.hallucinated_claims).toContain("https://fake.ca");
   });
 });
 
-import { openAiCircuitBreaker } from "../lib/circuit-breaker";
-
 describe("Circuit Breaker", () => {
-  it("should trip after 5 failures and return to half-open after timeout", () => {
-    openAiCircuitBreaker.reset();
-    
-    expect(openAiCircuitBreaker.isOpen()).toBe(false);
-    
-    // Simulate 5 failures
+  beforeEach(async () => {
+    await openAiCircuitBreaker.reset();
+  });
+
+  it("should trip after 5 failures and reset cleanly on success", async () => {
+    expect(await openAiCircuitBreaker.isOpen()).toBe(false);
+
     for (let i = 0; i < 5; i++) {
-      openAiCircuitBreaker.recordFailure();
+      await openAiCircuitBreaker.recordFailure();
     }
-    
-    expect(openAiCircuitBreaker.isOpen()).toBe(true);
-    
-    openAiCircuitBreaker.recordSuccess();
-    expect(openAiCircuitBreaker.isOpen()).toBe(false);
+
+    expect(await openAiCircuitBreaker.isOpen()).toBe(true);
+
+    await openAiCircuitBreaker.recordSuccess();
+    expect(await openAiCircuitBreaker.isOpen()).toBe(false);
   });
 });

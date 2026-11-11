@@ -118,7 +118,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
                   <span className="text-emerald-500">⊕</span> Positive Factors
                 </h4>
                 <ul className="space-y-2">
-                  {pathway.satisfiedRequirements?.filter(r => r.type === "points" || r.type === "hard").map(r => (
+                  {pathway.satisfiedRequirements?.filter(r => r.type === "points" || r.type === "hard" || r.type === "conditional").map(r => (
                     <li key={r.id} className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 flex items-start gap-2">
                       <span className="text-emerald-500 font-bold mt-[-1px]">✓</span>
                       <span>{r.description}</span>

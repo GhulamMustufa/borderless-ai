@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Education, EnglishTest, Goal, TargetRegion } from "@/lib/types";
 import { RESULT_STORAGE_KEY } from "@/lib/storage";
 import { pushRecentSubmission } from "@/lib/submissions";
-import { DEMO_PRESETS, type DemoPreset } from "@/lib/demo";
+import { DEMO_PRESETS } from "@/lib/demo";
+import { CERTIFIED_TARGET_REGIONS, EXPLORE_TO_FORM_REGION_MAP } from "@/lib/regions";
 
 const REGIONS: { id: string; value: TargetRegion; label: string }[] = [
   { id: "canada", value: "canada", label: "Canada" },
@@ -25,23 +26,7 @@ const REGIONS: { id: string; value: TargetRegion; label: string }[] = [
   { id: "africa", value: "africa", label: "Africa" },
 ];
 
-const REGION_QUERY_MAP: Record<string, { targetRegion: TargetRegion; label: string }> = {
-  canada: { targetRegion: "canada", label: "Canada" },
-  uk: { targetRegion: "uk", label: "UK" },
-  "australia-new-zealand": { targetRegion: "australia-new-zealand", label: "Australia/New Zealand" },
-  "germany-nordics": { targetRegion: "germany-nordics", label: "Germany/Northern Europe" },
-  "southern-europe": { targetRegion: "southern-europe", label: "Southern Europe" },
-  "middle-east": { targetRegion: "middle-east", label: "Middle East" },
-  usa: { targetRegion: "usa", label: "USA" },
-  "sg-my": { targetRegion: "sg-my", label: "Singapore/Malaysia" },
-  "jp-kr": { targetRegion: "jp-kr", label: "Japan/South Korea" },
-  "easy-entry": { targetRegion: "easy-entry", label: "Easy Entry Countries" },
-  latam: { targetRegion: "latam", label: "Latin America" },
-  "eastern-europe": { targetRegion: "eastern-europe", label: "Eastern Europe & Caucasus" },
-  "greater-china": { targetRegion: "greater-china", label: "Greater China" },
-  africa: { targetRegion: "africa", label: "Africa" },
-  "canada-uk": { targetRegion: "canada", label: "Canada/UK" },
-};
+const REGION_QUERY_MAP = EXPLORE_TO_FORM_REGION_MAP;
 
 const COUNTRIES = [
   "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", "Austria", "Bangladesh", 
@@ -212,6 +197,7 @@ export default function FormPage() {
       scoreStr === "" || englishTest === "none" ? null : Number(scoreStr);
     const savingsUsd = Number(fd.get("savingsUsd"));
     const goal = fd.get("goal") as Goal;
+    const hasJobOffer = fd.get("hasJobOffer") === "on";
 
     setSubmitting(true);
     try {
@@ -229,6 +215,7 @@ export default function FormPage() {
           testScore,
           savingsUsd,
           goal,
+          hasJobOffer,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -245,6 +232,8 @@ export default function FormPage() {
       sessionStorage.setItem(
         RESULT_STORAGE_KEY,
         JSON.stringify({
+          overall_score: typeof data.overall_score === "number" ? data.overall_score : 0,
+          summary: typeof data.summary === "string" ? data.summary : "",
           pathways: data.pathways,
           profileSummary: {
             nationality,
@@ -257,6 +246,7 @@ export default function FormPage() {
             testScore,
             savingsUsd,
             goal,
+            hasJobOffer,
           },
         }),
       );
@@ -403,6 +393,14 @@ export default function FormPage() {
                   </option>
                 ))}
               </select>
+              {!CERTIFIED_TARGET_REGIONS.has(targetRegionValue) && (
+                <p
+                  data-testid="uncertified-region-notice"
+                  className="mt-1.5 text-xs text-amber-700 dark:text-amber-400"
+                >
+                  Certified live scoring currently covers Canada, UK, USA, Germany/Northern Europe, and Australia/New Zealand. Other regions are preview-only.
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="age" className="text-sm font-medium text-slate-800 dark:text-slate-200">
@@ -472,6 +470,15 @@ export default function FormPage() {
                 ))}
               </select>
             </div>
+            <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-200">
+              <input
+                type="checkbox"
+                id="hasJobOffer"
+                name="hasJobOffer"
+                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-accent focus:ring-accent"
+              />
+              <span>I have a confirmed job offer / employer sponsorship</span>
+            </label>
           </div>
 
           <div className={step === 3 ? "space-y-5" : "hidden"} aria-hidden={step !== 3}>
@@ -556,7 +563,7 @@ export default function FormPage() {
         </div>
 
         {error ? (
-          <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+          <p data-testid="form-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         ) : null}

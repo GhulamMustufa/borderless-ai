@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, resolveTrustedOrigin } from "@/lib/stripe";
 import { getUserSubscription, upsertUserSubscription } from "@/lib/persistence";
 
 export async function POST(req: Request) {
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
 
-  const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const origin = resolveTrustedOrigin(req);
   const priceId = process.env.STRIPE_PRO_PRICE_ID;
 
   if (!priceId) {

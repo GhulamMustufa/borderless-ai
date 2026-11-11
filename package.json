@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "evaluate": "npx tsx __tests__/evals/run-evaluation.ts",
+    "evaluate": "vite-node __tests__/evals/run-evaluation.ts",
     "prepare": "husky"
   },
   "dependencies": {

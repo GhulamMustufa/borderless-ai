@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import type { EnglishTest, TargetRegion, VisaProfile, ScoreResponse, RankedPathway } from "@/lib/types";
-import { normalizeProfile } from "@/lib/profile";
-import { getPathwaysForRegion, PATHWAY_REGISTRY } from "@/lib/domain";
+import type { VisaProfile } from "@/lib/types";
+import { profileSchema, parseOptionalTestScore } from "@/lib/validation";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { createRequestId, log } from "@/lib/logger";
 import { runVisaAssessment } from "@/lib/orchestrator";
+import { EvidenceUnavailableError } from "@/lib/evidence";
 import {
   persistSubmission,
   countMonthlySubmissions,
@@ -13,61 +12,6 @@ import {
 } from "@/lib/persistence";
 import { auth } from "@clerk/nextjs/server";
 import { FREE_MONTHLY_LIMIT } from "@/lib/stripe";
-
-const REGIONS = [
-  "canada",
-  "uk",
-  "australia-new-zealand",
-  "germany-nordics",
-  "southern-europe",
-  "middle-east",
-  "usa",
-  "sg-my",
-  "jp-kr",
-  "easy-entry",
-  "latam",
-  "eastern-europe",
-  "greater-china",
-  "africa",
-] as const;
-const EDUCATION = ["high_school", "bachelor", "master", "phd"] as const;
-const ENGLISH = ["none", "ielts", "toefl"] as const;
-const GOALS = ["work", "study", "pr"] as const;
-
-const profileSchema = z.object({
-  nationality: z.string().trim().min(1, "nationality is required").max(50, "nationality too long").regex(/^[a-zA-Z\s\-]+$/, "Invalid characters in nationality"),
-  targetRegion: z.enum(REGIONS),
-  age: z.coerce.number().int().min(18).max(80),
-  education: z.enum(EDUCATION),
-  yearsExperience: z.coerce.number().int().min(0).max(60),
-  fieldOfWork: z.string().trim().min(1, "fieldOfWork is required").max(50, "fieldOfWork too long").regex(/^[a-zA-Z0-9\s,\.\-&]+$/, "Invalid characters in field of work"),
-  englishTest: z.enum(ENGLISH),
-  testScore: z.coerce.number().nullable().optional(),
-  savingsUsd: z.coerce.number().min(0).max(50_000_000),
-  goal: z.enum(GOALS),
-});
-
-function parseOptionalTestScore(
-  englishTest: EnglishTest,
-  raw: unknown,
-): number | null {
-  if (raw === undefined || raw === null || raw === "") return null;
-  const n = Number(raw);
-  if (!Number.isFinite(n)) return null;
-  if (englishTest === "none") return null;
-  if (englishTest === "ielts") return Math.min(9, Math.max(0, n));
-  return Math.min(120, Math.max(0, n));
-}
-
-function safeJsonParse(input: string): { pathways: RankedPathway[], summary: string } | null {
-  try {
-    const parsed = JSON.parse(input);
-    if (!parsed || typeof parsed !== "object") return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
 
 export async function POST(req: Request) {
   const startedAt = Date.now();
@@ -135,6 +79,7 @@ export async function POST(req: Request) {
     testScore: parseOptionalTestScore(d.englishTest, d.testScore),
     savingsUsd: Math.round(d.savingsUsd),
     goal: d.goal,
+    ...(d.hasJobOffer !== undefined ? { hasJobOffer: d.hasJobOffer } : {}),
   };
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -143,10 +88,10 @@ export async function POST(req: Request) {
   }
 
   const promptVersion = "visa-prompt-v7-agentic";
-  let modelUsed = "gpt-4o-mini";
+  const modelUsed = "gpt-4o-mini";
 
   try {
-    const { response, trace, evidenceList } = await runVisaAssessment(profile, requestId);
+    const { response, evidenceList } = await runVisaAssessment(profile, requestId);
 
     try {
       await persistSubmission({
@@ -157,18 +102,31 @@ export async function POST(req: Request) {
         model: modelUsed,
         profile,
         sources: evidenceList.map(e => e.source_id),
-        result: { pathways: response.pathways.map(p => ({
-          name: p.name, 
-          country: p.country, 
-          score: p.baseScore, 
-          baseScore: p.baseScore, 
-          status: p.status,
-          reason: p.reason, 
-          weaknesses: p.weaknesses, 
-          documents: p.documents, 
-          next_steps: p.next_steps, 
-          citations: p.citations
-        }))},
+        result: {
+          overall_score: response.overall_score,
+          summary: response.summary,
+          pathways: response.pathways.map(p => ({
+            pathwayId: p.pathwayId,
+            name: p.name,
+            country: p.country,
+            score: p.baseScore,
+            baseScore: p.baseScore,
+            status: p.status,
+            scoreBreakdown: p.scoreBreakdown,
+            satisfiedRequirements: p.satisfiedRequirements,
+            missingRequirements: p.missingRequirements,
+            blockingRequirements: p.blockingRequirements,
+            marginalImprovements: p.marginalImprovements,
+            reason: p.reason,
+            weaknesses: p.weaknesses,
+            documents: p.documents,
+            next_steps: p.next_steps,
+            citations: p.citations,
+            estimated_timeline: p.estimated_timeline,
+            top_improvement: p.top_improvement,
+            source_freshness: p.source_freshness,
+          })),
+        },
         latencyMs: Date.now() - startedAt,
       });
     } catch (err) {
@@ -179,6 +137,22 @@ export async function POST(req: Request) {
     return NextResponse.json(response);
 
   } catch (error) {
+    if (error instanceof EvidenceUnavailableError) {
+      log("warn", "score_request_evidence_unavailable", {
+        requestId,
+        ip,
+        code: error.code,
+        message: error.message,
+      });
+      return NextResponse.json(
+        {
+          error: "Assessment unavailable: Reliable, human-verified immigration evidence is not available for this pathway. Automated scoring has been stopped to ensure accurate legal guidance.",
+          code: error.code,
+          details: error.message,
+        },
+        { status: 503 }
+      );
+    }
     log("error", "score_request_pipeline_failure", { requestId, ip, error: (error as Error).message });
     return NextResponse.json({ error: "An error occurred during evaluation." }, { status: 500 });
   }

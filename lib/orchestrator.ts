@@ -1,14 +1,14 @@
-import type { VisaProfile, ScoreResponse, RankedPathway, Evidence } from "./types";
+import type { VisaProfile, ScoreResponse, RankedPathway, Evidence, EligibilityStatus } from "./types";
 import { normalizeProfile } from "./profile";
-import { getPathwaysForRegion, PATHWAY_REGISTRY } from "./domain";
+import { getPathwaysForRegion } from "./domain";
 import { buildAIOrchestratorPrompt } from "./ai";
-import { retrieveEvidence } from "./evidence";
+import { retrieveEvidence, EvidenceUnavailableError } from "./evidence";
 import { detectConflicts } from "./validation";
 import { TraceContext } from "./trace";
-import { evaluateSynthesizerOutput } from "./critic";
 import { log } from "./logger";
 import { withRetry, RetryableError } from "./retry";
 import { openAiCircuitBreaker } from "./circuit-breaker";
+import { evaluatePathwayForProfile, sanitizeCitationsForPathway } from "./evaluator";
 
 function safeJsonParse(input: string): { pathways: any[], summary: string } | null {
   try {
@@ -33,12 +33,33 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
     const pathways = getPathwaysForRegion(profile.targetRegion);
     
     // Phase 1: Evidence Grounding (Retrieval)
+    // Pass undefined as pathwayId (NULL to match_evidence_v2) so all verified pathways in the region can be retrieved
     const evidenceList = await trace.runStep("retrieveEvidence", async () => {
-      return await retrieveEvidence(profile, normalizedProfile, pathways[0]?.id, 10);
+      return await retrieveEvidence(profile, normalizedProfile, undefined, 12);
     });
     
+    // FAIL CLOSED: Never run scoring if verified human-reviewed evidence is unavailable
+    if (!evidenceList || evidenceList.length === 0) {
+      log("warn", "assessment_stopped_no_verified_evidence", {
+        requestId,
+        targetRegion: profile.targetRegion,
+      });
+      throw new EvidenceUnavailableError(
+        `Assessment unavailable: No certified, human-reviewed official evidence found for target region "${profile.targetRegion}". Automated scoring stopped to prevent ungrounded legal determinations.`,
+        "NO_VERIFIED_EVIDENCE"
+      );
+    }
+
     trace.recordRetrieval(evidenceList.map(e => e.source_id));
-    detectConflicts(evidenceList); // Internal logging
+    const conflicts = detectConflicts(evidenceList);
+    if (conflicts.length > 0) {
+      log("info", "evidence_conflicts_detected", {
+        requestId,
+        targetRegion: profile.targetRegion,
+        conflictCount: conflicts.length,
+        messages: conflicts.map((c) => c.message),
+      });
+    }
     
     // Phase 2: AI Synthesizer (Single Pass, Strict JSON)
     const currentPrompt = buildAIOrchestratorPrompt(normalizedProfile, pathways, evidenceList);
@@ -112,18 +133,13 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
 
     if (!approved) {
       log("warn", "agent_exhausted_retries", { requestId });
-      parsedAIResponse = {
-        summary: "Our AI assistant could not confidently verify the qualitative advice.",
-        pathways: pathways.map(e => ({
-          name: e.name, country: e.country, baseScore: 0, reason: "AI validation failed.",
-          weaknesses: [], documents: [], next_steps: [], citations: [], estimated_timeline: "Unknown",
-          top_improvement: "Review official guidelines.", eligibilityStatus: "UNKNOWN",
-          source_freshness: "UNKNOWN"
-        }))
-      };
+      throw new EvidenceUnavailableError(
+        "Assessment unavailable: AI evaluation could not safely verify eligibility against official evidence.",
+        "SYNTHESIS_FAILED"
+      );
     }
 
-    // Calculate baseline profile metrics so scoreBreakdown is never empty
+    // Calculate profile metrics for diagnostic breakdown (never used as fallback eligibility score)
     const eduScore = profile.education === "phd" ? 28 : profile.education === "master" ? 24 : profile.education === "bachelor" ? 16 : 8;
     const expScore = profile.yearsExperience >= 8 ? 24 : profile.yearsExperience >= 5 ? 20 : profile.yearsExperience >= 3 ? 15 : profile.yearsExperience >= 1 ? 8 : 0;
     const savingsScore = profile.savingsUsd >= 50000 ? 24 : profile.savingsUsd >= 25000 ? 18 : profile.savingsUsd >= 10000 ? 12 : profile.savingsUsd >= 5000 ? 6 : 0;
@@ -131,39 +147,93 @@ export async function runVisaAssessment(profile: VisaProfile, requestId: string)
     
     const profileStrength = Math.min(100, Math.round(((eduScore + expScore) / 52) * 100));
     const competitiveness = Math.min(100, Math.round(((langScore + expScore + savingsScore) / 68) * 100));
-    const baselineComposite = Math.min(100, Math.round(eduScore + expScore + savingsScore + langScore));
+
+    const VALID_STATUSES = new Set<EligibilityStatus>([
+      "ELIGIBLE",
+      "LIKELY_ELIGIBLE",
+      "CONDITIONALLY_ELIGIBLE",
+      "BLOCKED",
+      "INSUFFICIENT_EVIDENCE",
+    ]);
 
     const finalPathways: RankedPathway[] = parsedAIResponse.pathways.map((aiData: any) => {
-      const domainData = pathways.find(p => p.name === aiData.name || p.id === aiData.name) || pathways[0];
-      const effectiveBaseScore = typeof aiData.baseScore === "number" && aiData.baseScore > 0 
-        ? aiData.baseScore 
-        : baselineComposite;
+      const detEval = evaluatePathwayForProfile({
+        aiName: String(aiData.name || ""),
+        aiCountry: String(aiData.country || ""),
+        regionPathways: pathways,
+        profile: normalizedProfile,
+        evidenceList,
+      });
+
+      const { citations, invalidUrls } = sanitizeCitationsForPathway(
+        Array.isArray(aiData.citations) ? aiData.citations : [],
+        evidenceList,
+        String(aiData.country || ""),
+        String(aiData.name || "")
+      );
+
+      if (invalidUrls.length > 0) {
+        trace.recordValidationFailure(
+          `Stripped unverified citations for ${aiData.name}: ${invalidUrls.join(", ")}`
+        );
+        log("warn", "stripped_unverified_citations", {
+          requestId,
+          pathway: aiData.name,
+          invalidUrls,
+        });
+      }
+
+      const effectiveBaseScore = typeof aiData.baseScore === "number" && Number.isFinite(aiData.baseScore)
+        ? Math.min(100, Math.max(0, Math.round(aiData.baseScore)))
+        : 0;
+
+      const rawStatus = typeof aiData.eligibilityStatus === "string"
+        ? aiData.eligibilityStatus.trim().toUpperCase()
+        : "";
+      let resolvedStatus: EligibilityStatus = VALID_STATUSES.has(rawStatus as EligibilityStatus)
+        ? (rawStatus as EligibilityStatus)
+        : (effectiveBaseScore >= 70 ? "ELIGIBLE" : effectiveBaseScore >= 45 ? "CONDITIONALLY_ELIGIBLE" : "BLOCKED");
+
+      if (detEval.matchedDomain && detEval.blockingRequirements.length > 0) {
+        const onlySponsorshipBlocker = detEval.blockingRequirements.every((b) =>
+          b.id === "req-uk-sponsor" ||
+          b.id === "req-uk-salary" ||
+          b.id === "req-us-sponsor" ||
+          b.id === "req-de-job"
+        );
+        if (!onlySponsorshipBlocker || effectiveBaseScore < 50) {
+          resolvedStatus = "BLOCKED";
+        } else if (resolvedStatus === "ELIGIBLE" || resolvedStatus === "LIKELY_ELIGIBLE") {
+          resolvedStatus = "CONDITIONALLY_ELIGIBLE";
+        }
+      }
 
       return {
-        pathwayId: domainData?.id || "unknown",
+        pathwayId: detEval.pathwayId,
         name: aiData.name,
         country: aiData.country,
-        status: aiData.eligibilityStatus || (effectiveBaseScore >= 70 ? "ELIGIBLE" : effectiveBaseScore >= 45 ? "CONDITIONALLY_ELIGIBLE" : "BLOCKED"),
+        status: resolvedStatus,
         baseScore: effectiveBaseScore,
         maxScore: 100,
         scoreBreakdown: { 
           eligibilityFit: effectiveBaseScore, 
           profileStrength, 
-          evidenceQuality: 100, 
+          evidenceQuality: detEval.scoreBreakdown.evidenceQuality || 95, 
           competitiveness 
         },
-        satisfiedRequirements: [],
-        missingRequirements: [],
-        blockingRequirements: [],
-        marginalImprovements: [],
+        satisfiedRequirements: detEval.satisfiedRequirements,
+        missingRequirements: detEval.missingRequirements,
+        blockingRequirements: detEval.blockingRequirements,
+        marginalImprovements: detEval.marginalImprovements,
+        topWhatIfScenario: detEval.topWhatIfScenario,
         reason: aiData.reason, 
-        weaknesses: aiData.weaknesses, 
-        documents: aiData.documents,
-        next_steps: aiData.next_steps, 
-        citations: aiData.citations, 
+        weaknesses: Array.isArray(aiData.weaknesses) ? aiData.weaknesses : [], 
+        documents: Array.isArray(aiData.documents) ? aiData.documents : [],
+        next_steps: Array.isArray(aiData.next_steps) ? aiData.next_steps : [], 
+        citations, 
         estimated_timeline: aiData.estimated_timeline,
-        top_improvement: aiData.top_improvement,
-        source_freshness: aiData.source_freshness as any,
+        top_improvement: aiData.top_improvement || detEval.marginalImprovements[0]?.actionName || "",
+        source_freshness: (aiData.source_freshness || "VERIFIED") as RankedPathway["source_freshness"],
       };
     }).sort((a: RankedPathway, b: RankedPathway) => b.baseScore - a.baseScore);
 
