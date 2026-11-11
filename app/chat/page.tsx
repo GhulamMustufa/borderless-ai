@@ -176,17 +176,17 @@ export default function ChatPage() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                <span>New Consultation</span>
+                <span>New Chat</span>
               </button>
             </div>
 
             {/* Threads List */}
             <div className="flex-1 overflow-y-auto p-3 space-y-1">
               <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                Recent Chats
+                Past Chats
               </div>
               {loadingThreads && threads.length === 0 ? (
-                <div className="p-4 text-xs text-slate-400 text-center">Loading history...</div>
+                <div className="p-4 text-xs text-slate-400 text-center">Loading your chats...</div>
               ) : threads.length === 0 ? (
                 <div className="p-4 text-xs text-slate-400 text-center">No past chats yet.</div>
               ) : (
@@ -209,13 +209,12 @@ export default function ChatPage() {
               )}
             </div>
 
-            {/* Cloud Sync Status */}
+            {/* Saved Account Status */}
             <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#161616] text-[11px] text-slate-500 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Cloud Synced
+                Chats saved to your account
               </span>
-              <span className="text-[10px] text-slate-400">PostgreSQL</span>
             </div>
           </aside>
         </>
@@ -231,7 +230,7 @@ export default function ChatPage() {
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="md:hidden inline-flex p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-                title="Toggle History"
+                title="Open Past Chats"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -240,8 +239,8 @@ export default function ChatPage() {
             )}
             <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
               {activeThreadId
-                ? threads.find((t) => t.id === activeThreadId)?.title || "Immigration Consultation"
-                : "New Immigration Consultation"}
+                ? threads.find((t) => t.id === activeThreadId)?.title || "Visa Chat"
+                : "New Visa Chat"}
             </span>
           </div>
           {isSignedIn && (
@@ -267,10 +266,10 @@ export default function ChatPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2 tracking-tight">
-                    Borderless AI Immigration Copilot
+                    Borderless AI Visa Assistant
                   </h1>
                   <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto text-sm leading-relaxed">
-                    Ask me anything about moving abroad. I am strictly bound to official immigration policies and legal thresholds.
+                    Ask any question about moving abroad. Answers come straight from official government visa rules—never guesswork.
                   </p>
                 </div>
 
@@ -279,14 +278,14 @@ export default function ChatPage() {
                     <button
                       type="button"
                       className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors"
-                      onClick={() => handleFormSubmit(undefined, "What are the requirements for Germany's Opportunity Card (Chancenkarte)?")}
+                      onClick={() => handleFormSubmit(undefined, "What do I need for Germany's Opportunity Card visa?")}
                     >
-                      &ldquo;What are the requirements for Germany&apos;s Opportunity Card (Chancenkarte)?&rdquo;
+                      &ldquo;What do I need for Germany&apos;s Opportunity Card visa?&rdquo;
                     </button>
                     <button
                       type="button"
                       className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 shadow-sm cursor-pointer hover:border-indigo-500 transition-colors"
-                      onClick={() => handleFormSubmit(undefined, "Do I need a job offer for the Canadian Express Entry?")}
+                      onClick={() => handleFormSubmit(undefined, "Do I need a job offer for Canadian Express Entry?")}
                     >
                       &ldquo;Do I need a job offer for Canadian Express Entry?&rdquo;
                     </button>
@@ -297,10 +296,10 @@ export default function ChatPage() {
                     className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4 mt-2"
                   >
                     <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                      Sign in required for verified AI chat
+                      Sign in to chat with the Visa Assistant
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      Conversations are scoped to certified government sources and saved securely to your consultation history.
+                      Answers are backed by official government rules, and your chat history is saved safely to your account.
                     </p>
                     <SignInButton mode="modal">
                       <button
@@ -382,7 +381,7 @@ export default function ChatPage() {
             {isLoaded && !isSignedIn ? (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-4 py-3">
                 <span className="text-xs text-slate-600 dark:text-slate-300">
-                  Please sign in to send messages to Borderless AI Copilot.
+                  Sign in to ask questions in the Visa Assistant.
                 </span>
                 <SignInButton mode="modal">
                   <button
@@ -399,7 +398,7 @@ export default function ChatPage() {
                   className="w-full bg-transparent border-none py-4 pl-6 pr-14 focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 text-sm"
                   value={inputValue}
                   disabled={!isLoaded || !isSignedIn}
-                  placeholder="Ask about a visa, e.g., 'What are the rules for Germany's opportunity card?'"
+                  placeholder="Ask about a visa, e.g. 'Do I need a job offer for Germany?'"
                   onChange={(e) => setInputValue(e.target.value)}
                 />
                 <button
@@ -414,7 +413,7 @@ export default function ChatPage() {
               </form>
             )}
             <div className="text-center mt-3 text-xs text-slate-500 dark:text-slate-500">
-              Borderless AI relies on official government data, but always verify with official sources before applying.
+              Answers come from official government pages. Always double-check on official websites before applying.
             </div>
           </div>
         </div>

@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   if (!rate.allowed) {
     log("warn", "rate_limited", { requestId, ip, retryAfterMs: rate.retryAfterMs });
     return NextResponse.json(
-      { error: "Too many requests. Please retry shortly." },
+      { error: "You've checked too fast. Please wait a moment and try again." },
       {
         status: 429,
         headers: { "Retry-After": String(Math.ceil(rate.retryAfterMs / 1000)) },
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       if (used >= FREE_MONTHLY_LIMIT) {
         return NextResponse.json(
           {
-            error: `Free plan limit reached (${FREE_MONTHLY_LIMIT} assessments/month). Upgrade to Pro.`,
+            error: `You've used all ${FREE_MONTHLY_LIMIT} free visa checks this month. Upgrade to Pro for unlimited checks.`,
             upgradeRequired: true,
           },
           { status: 402 },
@@ -146,7 +146,7 @@ export async function POST(req: Request) {
       });
       return NextResponse.json(
         {
-          error: "Assessment unavailable: Reliable, human-verified immigration evidence is not available for this pathway. Automated scoring has been stopped to ensure accurate legal guidance.",
+          error: "Live scoring isn't ready for this country yet. We only score countries where our team has checked the official government rules, so you never get made-up answers.",
           code: error.code,
           details: error.message,
         },
@@ -154,6 +154,6 @@ export async function POST(req: Request) {
       );
     }
     log("error", "score_request_pipeline_failure", { requestId, ip, error: (error as Error).message });
-    return NextResponse.json({ error: "An error occurred during evaluation." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong while checking your visa options. Please try again." }, { status: 500 });
   }
 }

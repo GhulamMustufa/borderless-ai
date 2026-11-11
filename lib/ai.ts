@@ -57,5 +57,6 @@ OUTPUT REQUIREMENTS:
 5. Estimate a realistic timeline based on the sources.
 6. Under "top_improvement", output the exact single action that would raise their score the most.
 7. ONLY cite URLs explicitly provided in the Official Grounding Evidence. Do not hallucinate citations.
-8. Output valid JSON matching the requested schema.`;
+8. Output valid JSON matching the requested schema.
+9. PLAIN ENGLISH: Write "reason", "weaknesses", "documents", "next_steps", "summary", and "top_improvement" in simple, everyday English that anyone can understand. Avoid dense legal jargon, and briefly explain any visa acronym you mention.`;
 }

@@ -47,7 +47,7 @@ export default async function DashboardPage({
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       {searchParams.upgrade === "success" && (
         <div className="mb-6 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/50 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-300">
-          You&apos;re now on Pro. Unlimited assessments unlocked.
+          You&apos;re now on Pro. Unlimited visa checks are unlocked.
         </div>
       )}
 
@@ -64,7 +64,7 @@ export default async function DashboardPage({
           href="/form"
           className="inline-flex h-11 items-center justify-center rounded-lg bg-accent px-6 text-sm font-medium text-white shadow-soft transition hover:bg-indigo-600"
         >
-          New assessment
+          New visa check
         </Link>
       </div>
 
@@ -72,7 +72,7 @@ export default async function DashboardPage({
       <div className="mb-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-card p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Plan</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Your Plan</p>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-lg font-semibold text-slate-900 dark:text-white">{plan.name}</span>
               {isPro && (
@@ -83,7 +83,7 @@ export default async function DashboardPage({
             </div>
             {!isPro && (
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                {monthlyUsed} / {FREE_MONTHLY_LIMIT} assessments used this month
+                {monthlyUsed} / {FREE_MONTHLY_LIMIT} visa checks used this month
               </p>
             )}
             {isPro && subscription?.currentPeriodEnd && (
@@ -123,7 +123,7 @@ export default async function DashboardPage({
               />
             </div>
             <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              Pro gives you unlimited assessments + priority support.
+              Pro gives you unlimited visa checks + priority support.
             </p>
           </div>
         )}
@@ -131,16 +131,16 @@ export default async function DashboardPage({
 
       {/* Recent assessments */}
       <div>
-        <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">Recent assessments</h2>
+        <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">Your recent visa checks</h2>
 
         {recentItems.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 py-12 text-center">
-            <p className="text-sm text-slate-500 dark:text-slate-400">No assessments yet.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">You haven&apos;t run any visa checks yet.</p>
             <Link
               href="/form"
               className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-accent px-4 text-xs font-medium text-white hover:bg-indigo-600"
             >
-              Start your first assessment
+              Start your first check
             </Link>
           </div>
         ) : (
@@ -181,7 +181,7 @@ export default async function DashboardPage({
                           day: "numeric",
                         })}
                         {" · "}
-                        {item.profile.goal.toUpperCase()}
+                        {item.profile.goal === "pr" ? "Permanent Stay (PR)" : item.profile.goal === "work" ? "Work" : "Study"}
                         {" · "}
                         {item.profile.targetRegion}
                       </p>
@@ -189,12 +189,12 @@ export default async function DashboardPage({
                         {topName}
                       </p>
                       <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                        Avg score across {item.result.pathways.length} pathways
+                        Average across {item.result.pathways.length} visa options
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <ScoreBadge score={topScore} />
-                      <span className="text-xs text-slate-400 dark:text-slate-500">top</span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500">best</span>
                       <ScoreBadge score={avgScore} />
                       <span className="text-xs text-slate-400 dark:text-slate-500">avg</span>
                     </div>

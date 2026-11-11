@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Start Your Visa Assessment",
+  title: "Start Your Free Visa Check",
   description:
-    "Answer a few quick questions and get a personalized AI score for your top visa pathways in seconds. Free, instant, and based on official government rules.",
+    "Answer 3 quick steps and get an honest score for your best visa options in under 2 minutes—free and backed by real government rules.",
   openGraph: {
-    title: "Start Your Visa Assessment — Borderless AI",
+    title: "Start Your Free Visa Check — Borderless AI",
     description:
-      "Answer a few quick questions and get a personalized AI score for your top visa pathways in seconds.",
+      "Answer 3 quick steps and get an honest score for your best visa options in under 2 minutes.",
     url: "https://borderless.ghulam-mustafa.com/form",
   },
   alternates: {

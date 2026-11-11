@@ -88,7 +88,7 @@ export function Header() {
                 : "text-muted hover:text-foreground"
             }`}
           >
-            Assessment
+            Visa Check
           </Link>
           <Link 
             href="/explore" 

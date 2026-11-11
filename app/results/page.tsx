@@ -186,19 +186,26 @@ export default function ResultsPage() {
   if (!data || !simulatedProfile) {
     return (
       <main className="mx-auto max-w-lg px-4 py-20 text-center">
-        <h1 className="text-xl font-semibold text-slate-900">No results yet</h1>
-        <p className="mt-3 text-sm leading-relaxed text-slate-600">
-          Complete the form first—results are stored in your browser for this session.
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-white">No visa results yet</h1>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+          Fill out the quick check form first — your results will appear right here.
         </p>
         <Link
           href="/form"
           className="mt-8 inline-flex h-11 items-center justify-center rounded-lg bg-accent px-6 text-sm font-medium text-white shadow-soft hover:bg-indigo-600"
         >
-          Go to form
+          Start Visa Check
         </Link>
       </main>
     );
   }
+
+  const readableGoal =
+    data.profileSummary.goal === "pr"
+      ? "Stay Long-Term (PR)"
+      : data.profileSummary.goal === "work"
+        ? "Work Visa"
+        : "Student Visa";
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -212,11 +219,11 @@ export default function ResultsPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold tracking-tight text-slate-900">Borderless AI</h2>
-              <p className="text-xs text-slate-500">Official Immigration Readiness Assessment Report</p>
+              <p className="text-xs text-slate-500">Personal Visa Eligibility Report</p>
             </div>
           </div>
           <div className="text-right text-xs text-slate-500">
-            <p>Generated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            <p>Date: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
             <p className="font-mono text-[10px] text-slate-400">REF: {data.profileSummary.nationality.slice(0,3).toUpperCase()}-{data.profileSummary.targetRegion.toUpperCase()}</p>
           </div>
         </div>
@@ -225,14 +232,14 @@ export default function ResultsPage() {
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2">
-              Decision Support Dashboard
+              Your Results
             </p>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Your Visa Strategy
+              Your Visa Plan
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              We've evaluated your profile against {simulatedPathways.length} pathways. 
-              This dashboard provides an honest look at your eligibility, blockers, and exact next steps.
+              We checked your details against {simulatedPathways.length} visa options.
+              Below is an honest view of where you qualify, what may hold you back, and what to do next.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3 print:hidden">
@@ -243,13 +250,13 @@ export default function ResultsPage() {
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span>Download Action Plan (PDF)</span>
+              <span>Save / Print Plan (PDF)</span>
             </button>
             <Link
               href="/form"
               className="inline-flex h-10 items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:hover:bg-slate-700"
             >
-              Start New Assessment
+              Check Another Country
             </Link>
           </div>
         </div>
@@ -267,11 +274,11 @@ export default function ResultsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </span>
-                Applicant Snapshot
+                Your Details
               </h2>
               <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-sm">
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Occupation</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Type of Work</p>
                   <p className="font-medium text-slate-900 dark:text-white truncate" title={data.profileSummary.fieldOfWork}>{data.profileSummary.fieldOfWork}</p>
                 </div>
                 <div>
@@ -280,7 +287,7 @@ export default function ResultsPage() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Goal</p>
-                  <p className="font-medium text-slate-900 dark:text-white uppercase">{data.profileSummary.goal}</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{readableGoal}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Age</p>
@@ -301,7 +308,7 @@ export default function ResultsPage() {
             {/* Disclaimer */}
             <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 p-4 border border-amber-200 dark:border-amber-800/60">
               <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
-                <strong>Important:</strong> This report provides AI-generated guidance based on official thresholds, not legal advice. Always consult an official immigration attorney.
+                <strong>Important:</strong> These results give practical guidance based on official rules, not formal legal advice. Always check the official government website or talk to a licensed immigration lawyer before applying.
               </p>
             </div>
           </div>
@@ -310,7 +317,7 @@ export default function ResultsPage() {
           <div className="lg:col-span-8 space-y-6">
             {simulatedPathways.length === 0 ? (
               <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center shadow-sm">
-                <p className="text-slate-500 dark:text-slate-400">No pathways matched your criteria.</p>
+                <p className="text-slate-500 dark:text-slate-400">No matching visa options were found for those details.</p>
               </div>
             ) : (
               simulatedPathways.map((pathway, idx) => (

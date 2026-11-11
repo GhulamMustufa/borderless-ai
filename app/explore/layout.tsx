@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Explore Visa Pathways",
+  title: "Explore Visa Options by Region",
   description:
-    "Browse 70+ visa programs by country, category, and eligibility score. Find the right immigration pathway for your profile — digital nomad, skilled worker, student, and more.",
+    "Compare visa costs, difficulty, and processing speed across 14 global regions—find the best option for work, study, or permanent stay.",
   openGraph: {
-    title: "Explore Visa Pathways — Borderless AI",
+    title: "Explore Visa Options by Region — Borderless AI",
     description:
-      "Browse 70+ visa programs by country, category, and eligibility score. Find the right immigration pathway for your profile.",
+      "Compare visa costs, difficulty, and processing speed across 14 global regions before checking your chances.",
     url: "https://borderless.ghulam-mustafa.com/explore",
   },
   alternates: {

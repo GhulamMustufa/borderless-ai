@@ -4,42 +4,42 @@
     "region": "canada",
     "country": "Canada",
     "name": "Express Entry (FSW / CEC)",
-    "shortDescription": "Points-based federal route favoring skilled workers with strong language and education.",
+    "shortDescription": "Points-based visa favoring workers with strong English scores and university degrees.",
     "baseScoreThreshold": 67, 
     "requirements": [
       {
         "id": "req-ca-exp",
         "type": "hard",
-        "description": "Minimum 1 year of continuous skilled work experience.",
+        "description": "At least 1 year of continuous skilled work experience.",
         "pointsAwarded": 15,
-        "resolutionActionName": "Gain 1 Year Skilled Experience",
+        "resolutionActionName": "Get 1 year of skilled work experience",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 4, "certainty": 5 },
         "condition": { "operator": ">=", "field": "original.yearsExperience", "value": 1 }
       },
       {
         "id": "req-ca-lang",
         "type": "hard",
-        "description": "Minimum language level of CLB 7 (IELTS 6.0 in all bands or CEFR B2).",
+        "description": "Good English test score (IELTS 6.0+ or TOEFL 72+).",
         "pointsAwarded": 16,
-        "resolutionActionName": "Pass IELTS with minimum 6.0",
+        "resolutionActionName": "Score at least 6.0 on IELTS (or 72 on TOEFL)",
         "actionMetrics": { "cost": 2, "time": 2, "difficulty": 3, "certainty": 4 },
         "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["B2", "C1", "C2"] }
       },
       {
         "id": "req-ca-lang-c1",
         "type": "points",
-        "description": "Advanced language level (CLB 9+ / CEFR C1+).",
+        "description": "High English test score (IELTS 7.0+ or TOEFL 95+).",
         "pointsAwarded": 15,
-        "resolutionActionName": "Improve IELTS to 8.0+",
+        "resolutionActionName": "Raise IELTS to 7.0+ (or TOEFL to 95+)",
         "actionMetrics": { "cost": 2, "time": 3, "difficulty": 4, "certainty": 3 },
         "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["C1", "C2"] }
       },
       {
         "id": "req-ca-funds",
         "type": "conditional",
-        "description": "Proof of settlement funds (approx $10k+ USD) unless currently working in Canada.",
+        "description": "Bank savings proof (around $10,000+ USD) unless you already have a Canadian job.",
         "pointsAwarded": 0,
-        "resolutionActionName": "Save $10,000 USD for Settlement Funds",
+        "resolutionActionName": "Save $10,000 USD to cover moving costs",
         "actionMetrics": { "cost": 5, "time": 4, "difficulty": 3, "certainty": 5 },
         "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 10000 }
       },
@@ -48,7 +48,7 @@
         "type": "points",
         "description": "Bachelor's degree or higher.",
         "pointsAwarded": 21,
-        "resolutionActionName": "Complete a Bachelor's Degree",
+        "resolutionActionName": "Complete a Bachelor's degree",
         "actionMetrics": { "cost": 5, "time": 5, "difficulty": 5, "certainty": 5 },
         "condition": { "operator": "in", "field": "original.education", "value": ["bachelor", "master", "phd"] }
       },
@@ -57,7 +57,7 @@
         "type": "points",
         "description": "Master's degree or PhD.",
         "pointsAwarded": 10,
-        "resolutionActionName": "Complete a Master's Degree",
+        "resolutionActionName": "Complete a Master's degree",
         "actionMetrics": { "cost": 5, "time": 4, "difficulty": 4, "certainty": 5 },
         "condition": { "operator": "in", "field": "original.education", "value": ["master", "phd"] }
       },
@@ -77,9 +77,9 @@
       {
         "id": "req-ca-stem",
         "type": "points",
-        "description": "Occupation in STEM or Healthcare.",
+        "description": "Job in tech, engineering, science, or healthcare.",
         "pointsAwarded": 10,
-        "resolutionActionName": "Secure employment in STEM/Healthcare",
+        "resolutionActionName": "Work in a tech, engineering, or healthcare role",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 3 },
         "condition": {
           "operator": "or",
@@ -96,32 +96,32 @@
     "region": "uk",
     "country": "UK",
     "name": "Skilled Worker Visa",
-    "shortDescription": "Employer-sponsored route requiring a confirmed job offer and minimum salary.",
+    "shortDescription": "Work visa requiring a job offer from an approved UK employer and minimum pay.",
     "requirements": [
       {
         "id": "req-uk-sponsor",
         "type": "hard",
-        "description": "Must hold a Certificate of Sponsorship from a licensed UK employer.",
+        "description": "Must have a job offer and sponsor code from an approved UK employer.",
         "pointsAwarded": 50,
-        "resolutionActionName": "Secure a licensed UK Sponsor Job Offer",
+        "resolutionActionName": "Get a job offer from an approved UK sponsor",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 2 },
         "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       },
       {
         "id": "req-uk-salary",
         "type": "hard",
-        "description": "Minimum salary threshold (£38,700/yr general, lower if under 26 or shortage).",
+        "description": "Job must pay at least £38,700/year (sometimes less if under 26 or in a shortage role).",
         "pointsAwarded": 20,
-        "resolutionActionName": "Negotiate higher salary or find high-paying role",
+        "resolutionActionName": "Find a role meeting the UK minimum salary rule",
         "actionMetrics": { "cost": 1, "time": 4, "difficulty": 5, "certainty": 3 },
         "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       },
       {
         "id": "req-uk-lang",
         "type": "hard",
-        "description": "English language proficiency of at least CEFR B1 (IELTS 4.0).",
+        "description": "At least a basic English test score (IELTS 4.0+ or TOEFL 42+).",
         "pointsAwarded": 10,
-        "resolutionActionName": "Pass IELTS for UKVI with minimum 4.0",
+        "resolutionActionName": "Pass an approved English test (IELTS 4.0+)",
         "actionMetrics": { "cost": 2, "time": 1, "difficulty": 2, "certainty": 5 },
         "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["B1", "B2", "C1", "C2"] }
       }
@@ -132,21 +132,21 @@
     "region": "usa",
     "country": "USA",
     "name": "H-1B Specialty Occupation",
-    "shortDescription": "Employer-sponsored nonimmigrant visa for specialized roles requiring a degree.",
+    "shortDescription": "Work visa where a US employer sponsors you for a specialized job needing a degree.",
     "requirements": [
       {
         "id": "req-us-sponsor",
         "type": "hard",
-        "description": "U.S. employer sponsorship required.",
+        "description": "Requires a job offer from a US employer willing to sponsor your visa.",
         "pointsAwarded": 40,
-        "resolutionActionName": "Secure a US Employer willing to sponsor H-1B",
+        "resolutionActionName": "Get a job offer from a US company willing to sponsor H-1B",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 1 },
         "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       },
       {
         "id": "req-us-degree",
         "type": "hard",
-        "description": "Minimum of a Bachelor's degree or equivalent in a related field.",
+        "description": "Requires at least a Bachelor's degree in a matching field.",
         "pointsAwarded": 30,
         "resolutionActionName": "Complete a Bachelor's degree",
         "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 },
@@ -159,23 +159,23 @@
     "region": "sg-my",
     "country": "Malaysia",
     "name": "DE Rantau Nomad Pass",
-    "shortDescription": "A digital nomad visa for IT and digital professionals earning a minimum income.",
+    "shortDescription": "Remote work visa for tech and digital workers earning a minimum income.",
     "requirements": [
       {
         "id": "req-my-income",
         "type": "hard",
-        "description": "Minimum annual income of $24,000 USD.",
+        "description": "Minimum yearly income of $24,000 USD.",
         "pointsAwarded": 50,
-        "resolutionActionName": "Secure a remote job with higher salary",
+        "resolutionActionName": "Earn at least $24,000 USD per year in a remote job",
         "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 3 },
         "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 2000 }
       },
       {
         "id": "req-my-profession",
         "type": "hard",
-        "description": "Must be an IT or digital professional.",
+        "description": "Must work in tech, software, or digital fields.",
         "pointsAwarded": 50,
-        "resolutionActionName": "Transition to an IT/Digital role",
+        "resolutionActionName": "Work in an IT or digital role",
         "actionMetrics": { "cost": 3, "time": 5, "difficulty": 4, "certainty": 2 },
         "condition": { "operator": "===", "field": "isSTEM", "value": true }
       }
@@ -186,14 +186,14 @@
     "region": "australia-new-zealand",
     "country": "Australia",
     "name": "Skilled Independent Visa (Subclass 189)",
-    "shortDescription": "A points-tested visa for invited workers with skills Australia needs.",
+    "shortDescription": "Points-based permanent visa for invited workers whose skills Australia needs.",
     "requirements": [
       {
         "id": "req-au-lang",
         "type": "hard",
-        "description": "Competent English (IELTS 6.0 in all bands or equivalent).",
+        "description": "Strong English score (IELTS 6.0+ or TOEFL 72+).",
         "pointsAwarded": 0,
-        "resolutionActionName": "Pass IELTS with minimum 6.0",
+        "resolutionActionName": "Pass IELTS with 6.0+ (or TOEFL 72+)",
         "actionMetrics": { "cost": 2, "time": 2, "difficulty": 3, "certainty": 4 },
         "condition": { "operator": "in", "field": "languageLevelCEFR", "value": ["B2", "C1", "C2"] }
       },
@@ -211,7 +211,7 @@
     "region": "germany-nordics",
     "country": "Germany",
     "name": "EU Blue Card",
-    "shortDescription": "A residence title for academics and highly qualified workers from outside the EU.",
+    "shortDescription": "Work and residence visa for university graduates from outside the EU with a skilled job offer.",
     "requirements": [
       {
         "id": "req-de-degree",
@@ -225,9 +225,9 @@
       {
         "id": "req-de-job",
         "type": "hard",
-        "description": "A valid employment contract or binding job offer in Germany.",
+        "description": "A signed job contract or formal job offer in Germany.",
         "pointsAwarded": 40,
-        "resolutionActionName": "Secure a job offer in Germany",
+        "resolutionActionName": "Get a job offer in Germany",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 4, "certainty": 2 },
         "condition": { "operator": "===", "field": "hasJobOffer", "value": true }
       }
@@ -238,14 +238,14 @@
     "region": "southern-europe",
     "country": "Spain",
     "name": "Digital Nomad Visa",
-    "shortDescription": "Visa for non-EU remote workers and freelancers.",
+    "shortDescription": "Visa allowing non-EU remote workers and freelancers to live in Spain.",
     "requirements": [
       {
         "id": "req-es-income",
         "type": "hard",
-        "description": "Minimum monthly income of 200% of the Spanish minimum wage.",
+        "description": "Steady monthly remote income (at least double Spain's minimum wage, ~2,500 EUR/month).",
         "pointsAwarded": 50,
-        "resolutionActionName": "Secure remote income of at least ~2,500 EUR/month",
+        "resolutionActionName": "Show remote income of at least ~2,500 EUR/month",
         "actionMetrics": { "cost": 1, "time": 3, "difficulty": 3, "certainty": 4 },
         "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 2600 }
       }
@@ -256,14 +256,14 @@
     "region": "middle-east",
     "country": "United Arab Emirates",
     "name": "Golden Visa",
-    "shortDescription": "Long-term residence visa for specialized talents, investors, and outstanding students.",
+    "shortDescription": "Long-term 10-year residence visa for high-earning professionals, investors, and top students.",
     "requirements": [
       {
         "id": "req-ae-salary",
         "type": "hard",
-        "description": "Monthly salary of at least 30,000 AED (~8,100 USD) for professionals.",
+        "description": "Monthly salary of at least 30,000 AED (~$8,100 USD) for professionals.",
         "pointsAwarded": 60,
-        "resolutionActionName": "Achieve minimum salary threshold",
+        "resolutionActionName": "Meet the minimum monthly salary requirement",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 5, "certainty": 3 },
         "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 8100 }
       }
@@ -274,14 +274,14 @@
     "region": "jp-kr",
     "country": "Japan",
     "name": "Highly Skilled Professional Visa",
-    "shortDescription": "A points-based system for highly skilled foreign professionals.",
+    "shortDescription": "Points-based visa for skilled professionals with strong degrees, experience, or high salaries.",
     "requirements": [
       {
         "id": "req-jp-points",
         "type": "hard",
-        "description": "Minimum 70 points on the HSP point calculation table (Education, Experience, Salary).",
+        "description": "At least 70 points on Japan's skilled points check (based on degree, experience, and salary).",
         "pointsAwarded": 70,
-        "resolutionActionName": "Accumulate 70+ points via Salary/Experience",
+        "resolutionActionName": "Reach 70+ points through experience, degree, or salary",
         "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 4 },
         "condition": {
           "operator": "and",
@@ -298,14 +298,14 @@
     "region": "easy-entry",
     "country": "Thailand",
     "name": "Destination Thailand Visa (DTV)",
-    "shortDescription": "A 5-year multiple entry visa for remote workers and digital nomads.",
+    "shortDescription": "5-year multiple-entry visa for remote workers and digital nomads.",
     "requirements": [
       {
         "id": "req-th-funds",
         "type": "hard",
-        "description": "Proof of funds of at least 500,000 THB (~14,000 USD).",
+        "description": "Bank proof showing at least 500,000 THB (~$14,000 USD) in savings.",
         "pointsAwarded": 100,
-        "resolutionActionName": "Save minimum required funds",
+        "resolutionActionName": "Save at least ~$14,000 USD",
         "actionMetrics": { "cost": 4, "time": 3, "difficulty": 2, "certainty": 5 },
         "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 14000 }
       }
@@ -321,9 +321,9 @@
       {
         "id": "req-br-funds",
         "type": "hard",
-        "description": "Proof of monthly income of $1,500 USD or bank balance of $18,000 USD.",
+        "description": "Proof of $1,500 USD/month remote income or $18,000 USD in savings.",
         "pointsAwarded": 100,
-        "resolutionActionName": "Show proof of remote income or savings",
+        "resolutionActionName": "Show proof of remote income or bank savings",
         "actionMetrics": { "cost": 2, "time": 3, "difficulty": 2, "certainty": 5 },
         "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 18000 }
       }
@@ -334,14 +334,14 @@
     "region": "eastern-europe",
     "country": "Estonia",
     "name": "Estonia Digital Nomad Visa",
-    "shortDescription": "Allows remote workers to live in Estonia for up to a year.",
+    "shortDescription": "Lets remote workers live in Estonia for up to 1 year.",
     "requirements": [
       {
         "id": "req-ee-income",
         "type": "hard",
-        "description": "Proof of steady income of at least €4,500 per month (approx $5,000 USD) or sufficient savings.",
+        "description": "Proof of steady remote income around €4,500/month (~$5,000 USD) or enough savings.",
         "pointsAwarded": 100,
-        "resolutionActionName": "Secure remote employment contract",
+        "resolutionActionName": "Show steady remote work contract or income",
         "actionMetrics": { "cost": 1, "time": 4, "difficulty": 4, "certainty": 4 },
         "condition": { "operator": ">=", "field": "original.savingsUsd", "value": 15000 }
       }
@@ -352,23 +352,23 @@
     "region": "greater-china",
     "country": "Hong Kong",
     "name": "Quality Migrant Admission Scheme (QMAS)",
-    "shortDescription": "Points-based system to attract highly skilled talent to Hong Kong.",
+    "shortDescription": "Points-based visa for skilled professionals—no job offer needed upfront.",
     "requirements": [
       {
         "id": "req-hk-edu",
         "type": "points",
-        "description": "Higher education degrees score significantly more points.",
+        "description": "Higher university degrees earn significantly more points.",
         "pointsAwarded": 40,
-        "resolutionActionName": "Obtain higher degree",
+        "resolutionActionName": "Complete a higher university degree",
         "actionMetrics": { "cost": 5, "time": 5, "difficulty": 4, "certainty": 5 },
         "condition": { "operator": "in", "field": "original.education", "value": ["master", "phd"] }
       },
       {
         "id": "req-hk-exp",
         "type": "points",
-        "description": "5+ years of graduate or specialist work experience.",
+        "description": "5+ years of skilled or specialist work experience.",
         "pointsAwarded": 40,
-        "resolutionActionName": "Gain more work experience",
+        "resolutionActionName": "Gain more skilled work experience",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 3, "certainty": 5 },
         "condition": { "operator": ">=", "field": "original.yearsExperience", "value": 5 }
       }
@@ -379,23 +379,23 @@
     "region": "africa",
     "country": "South Africa",
     "name": "Critical Skills Work Visa",
-    "shortDescription": "For professionals in occupations listed on the national Critical Skills List.",
+    "shortDescription": "Work visa for workers whose job is on South Africa's high-demand skills list.",
     "requirements": [
       {
         "id": "req-za-edu",
         "type": "hard",
-        "description": "A degree in a relevant critical skill area.",
+        "description": "A university degree matching a high-demand skill area.",
         "pointsAwarded": 50,
-        "resolutionActionName": "Evaluate degree with SAQA",
+        "resolutionActionName": "Have your degree verified in South Africa (SAQA check)",
         "actionMetrics": { "cost": 3, "time": 4, "difficulty": 3, "certainty": 4 },
         "condition": { "operator": "in", "field": "original.education", "value": ["bachelor", "master", "phd"] }
       },
       {
         "id": "req-za-exp",
         "type": "hard",
-        "description": "At least 3 years of post-qualification experience.",
+        "description": "At least 3 years of work experience after earning your degree.",
         "pointsAwarded": 50,
-        "resolutionActionName": "Gain 3 years experience",
+        "resolutionActionName": "Gain 3 years of work experience",
         "actionMetrics": { "cost": 1, "time": 5, "difficulty": 2, "certainty": 5 },
         "condition": { "operator": ">=", "field": "original.yearsExperience", "value": 3 }
       }

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | Borderless AI",
   },
   description:
-    "Check your chances for 70+ visa types worldwide. AI-powered immigration advisor backed by official government data. No legal jargon. Instant results.",
+    "Check your chances for work, study, and long-term visas across 14 global regions. Backed by official government websites—simple language, honest scores, and clear next steps.",
   keywords: [
     "visa eligibility checker",
     "immigration AI",
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
     siteName: "Borderless AI",
     title: "Borderless AI — Free Visa Eligibility Checker",
     description:
-      "AI-powered immigration advisor. Check your visa chances instantly across 70+ countries.",
+      "Check your visa chances in minutes using real government rules, clear checklists, and our AI Visa Assistant.",
     url: BASE_URL,
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Borderless AI — Your Global Immigration Advisor",
+        alt: "Borderless AI — Simple Visa Eligibility & Planning",
       },
     ],
   },
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Borderless AI — Free Visa Eligibility Checker",
     description:
-      "AI-powered immigration advisor. Check your visa chances instantly across 70+ countries.",
+      "Check your visa chances in minutes using real government rules, clear checklists, and our AI Visa Assistant.",
     images: ["/og-image.png"],
   },
   alternates: {

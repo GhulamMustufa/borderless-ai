@@ -19,13 +19,13 @@ function getStatusLabel(status: string) {
   switch (status) {
     case "ELIGIBLE":
     case "LIKELY_ELIGIBLE":
-      return "Strong Fit";
+      return "Strong Match";
     case "CONDITIONALLY_ELIGIBLE":
-      return "Conditionally Eligible";
+      return "Possible (Missing Items)";
     case "BLOCKED":
-      return "Blocked";
+      return "Not Eligible Yet";
     default:
-      return "Needs Verification";
+      return "Needs Double-Checking";
   }
 }
 
@@ -33,12 +33,12 @@ function getStatusLabel(status: string) {
 function categorizeDocument(docName: string) {
   const lower = docName.toLowerCase();
   if (lower.includes("offer") || lower.includes("sponsor") || lower.includes("nomination") || lower.includes("reference")) {
-    return { type: "Needs Verification", color: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60" };
+    return { type: "Employer / Sponsor", color: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60" };
   }
   if (lower.includes("passport") || lower.includes("resume") || lower.includes("cv") || lower.includes("degree") || lower.includes("ielts") || lower.includes("bank")) {
-    return { type: "Ready", color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60" };
+    return { type: "Easy to Prepare", color: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60" };
   }
-  return { type: "Missing", color: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60" };
+  return { type: "Still Needed", color: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60" };
 }
 
 export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
@@ -104,9 +104,9 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
         {/* Left Column: Scores & Why */}
         <div className="lg:col-span-7 space-y-8">
           
-          {/* Why This Pathway? */}
+          {/* Why You Got This Score */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Why this pathway?</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Why you got this score</h3>
             <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 mb-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
               {pathway.reason}
             </p>
@@ -115,7 +115,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
               {/* Positive Factors (Satisfied reqs + General) */}
               <div>
                 <h4 className="flex items-center gap-1.5 text-sm font-medium text-emerald-800 dark:text-emerald-400 mb-2">
-                  <span className="text-emerald-500">⊕</span> Positive Factors
+                  <span className="text-emerald-500">⊕</span> What Helps Your Chances
                 </h4>
                 <ul className="space-y-2">
                   {pathway.satisfiedRequirements?.filter(r => r.type === "points" || r.type === "hard" || r.type === "conditional").map(r => (
@@ -125,7 +125,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
                     </li>
                   ))}
                   {(!pathway.satisfiedRequirements || pathway.satisfiedRequirements.length === 0) && (
-                    <li className="text-xs text-slate-500 dark:text-slate-400">No major strengths detected.</li>
+                    <li className="text-xs text-slate-500 dark:text-slate-400">No key strengths listed yet.</li>
                   )}
                 </ul>
               </div>
@@ -133,12 +133,12 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
               {/* Negative / Blocking Factors */}
               <div>
                 <h4 className="flex items-center gap-1.5 text-sm font-medium text-rose-800 dark:text-rose-400 mb-2">
-                  <span className="text-rose-500">⊖</span> Risk Factors
+                  <span className="text-rose-500">⊖</span> What Could Hold You Back
                 </h4>
                 <ul className="space-y-2">
                   {pathway.blockingRequirements?.map(r => (
                     <li key={r.id} className="text-xs leading-relaxed text-rose-600 dark:text-rose-300 flex items-start gap-2 bg-rose-50 dark:bg-rose-950/50 px-2 py-1.5 rounded border border-rose-200 dark:border-rose-900/60">
-                      <span className="font-bold mt-[-1px]">BLOCK:</span>
+                      <span className="font-bold mt-[-1px]">MISSING:</span>
                       <span>{r.description}</span>
                     </li>
                   ))}
@@ -156,7 +156,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
           {/* Next Best Action */}
           {topAction && (
             <section className="rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50 dark:bg-indigo-950/40 p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2">Next Best Action</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-2">Best Step to Improve</h3>
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400">
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
@@ -164,7 +164,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
                 <div>
                   <p className="text-sm font-medium text-indigo-900 dark:text-indigo-200">{topAction.actionName}</p>
                   <p className="mt-1 text-xs text-indigo-700 dark:text-indigo-300">
-                    Highest ROI improvement (+{topAction.pointImpact} pts). Difficulty: {topAction.metrics?.difficulty}/5.
+                    Estimated boost: +{topAction.pointImpact} points · Effort: {topAction.metrics?.difficulty} out of 5.
                   </p>
                 </div>
               </div>
@@ -180,9 +180,9 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">Score Breakdown</h3>
             <div className="space-y-3">
               {[
-                { label: "Eligibility Fit", value: breakdown.eligibilityFit, color: "bg-blue-500" },
-                { label: "Profile Strength", value: breakdown.profileStrength, color: "bg-violet-500" },
-                { label: "Competitiveness", value: breakdown.competitiveness, color: "bg-amber-500" },
+                { label: "Meets Basic Rules", value: breakdown.eligibilityFit, color: "bg-blue-500" },
+                { label: "Education & Work", value: breakdown.profileStrength, color: "bg-violet-500" },
+                { label: "Overall Strength", value: breakdown.competitiveness, color: "bg-amber-500" },
               ].map(metric => {
                 const numericValue = typeof metric.value === "number" && !isNaN(metric.value) ? metric.value : 0;
                 const displayPct = Math.min(100, Math.max(0, Math.round(numericValue)));
@@ -203,7 +203,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
 
           {/* Document Readiness */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Document Readiness</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Documents You&apos;ll Need</h3>
             <ul className="space-y-2">
               {pathway.documents?.map((doc, idx) => {
                 const cat = categorizeDocument(doc);
@@ -226,14 +226,14 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
         <div className="flex justify-between items-center w-full">
           <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
             <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-            Data grounded in official sources
+            Based on official government rules
           </p>
           {pathway.citations && pathway.citations.length > 0 && (
             <button 
               onClick={() => setShowSources(!showSources)}
               className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors flex items-center gap-1"
             >
-              {showSources ? "Hide Sources" : "Inspect Sources"}
+              {showSources ? "Hide Sources" : "View Official Sources"}
               <svg className={`h-3 w-3 transform transition-transform ${showSources ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
@@ -243,7 +243,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
         
         {showSources && pathway.citations && (
           <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 grid gap-3 animate-in fade-in slide-in-from-top-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Official Citations</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Official Government Links</p>
             {pathway.citations.map((cite, idx) => (
               <a 
                 key={idx}
@@ -254,7 +254,7 @@ export function PathwayCard({ pathway }: { pathway: RankedPathway }) {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-slate-800 dark:text-slate-200 group-hover:text-accent dark:group-hover:text-accent transition-colors line-clamp-1">{cite.title}</span>
-                  <span className="shrink-0 rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-300">Government Authority</span>
+                  <span className="shrink-0 rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-300">Official Gov Site</span>
                 </div>
                 <span className="text-[11px] text-slate-400 dark:text-slate-500 line-clamp-1">{cite.url}</span>
               </a>

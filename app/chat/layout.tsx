@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Immigration Chat",
+  title: "AI Visa Assistant",
   description:
-    "Ask our AI anything about visas, work permits, or moving abroad. Powered by official government data from 70+ countries. Free to start.",
+    "Ask questions about visas, work permits, or moving abroad in everyday English. Powered by verified official government rules. Free with an account.",
   openGraph: {
-    title: "AI Immigration Chat — Borderless AI",
+    title: "AI Visa Assistant — Borderless AI",
     description:
-      "Ask our AI anything about visas, work permits, or moving abroad. Powered by official government data from 70+ countries.",
+      "Ask questions about visas, work permits, or moving abroad in everyday English, backed by official government rules.",
     url: "https://borderless.ghulam-mustafa.com/chat",
   },
   alternates: {
@@ -24,7 +24,7 @@ const faqJsonLd = {
       name: "What is the Spain Digital Nomad Visa?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Spain's Digital Nomad Visa (DNV) allows non-EU remote workers and freelancers to live in Spain. Applicants must earn at least €2,334/month and work primarily for clients outside Spain.",
+        text: "Spain's Digital Nomad Visa lets remote workers and freelancers from outside the EU live in Spain. Applicants must show steady remote income for clients or employers outside Spain.",
       },
     },
     {
@@ -32,7 +32,7 @@ const faqJsonLd = {
       name: "How do I qualify for Canada Express Entry?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Canada Express Entry uses a Comprehensive Ranking System (CRS). Key factors include age, education, work experience, and language proficiency. Candidates with higher CRS scores receive invitations to apply for permanent residency.",
+        text: "Canada Express Entry scores applicants on age, degree, work experience, and English/French scores. People with higher scores receive invitations to apply to stay permanently in Canada.",
       },
     },
     {
@@ -40,15 +40,15 @@ const faqJsonLd = {
       name: "What countries offer a Digital Nomad Visa?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Over 50 countries now offer digital nomad or remote worker visas, including Portugal, Spain, Germany, UAE, Costa Rica, Thailand, and Indonesia (Bali). Each has different income, insurance, and duration requirements.",
+        text: "Many countries offer remote worker visas, including Portugal, Spain, Germany, the UAE, Thailand, Brazil, and Estonia. Each has different monthly income or savings rules.",
       },
     },
     {
       "@type": "Question",
-      name: "Can AI help me determine my visa eligibility?",
+      name: "Can AI help me check my visa chances?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes. Borderless AI scores your eligibility across 70+ visa pathways using a deterministic rules engine grounded in official government data. It provides an honest probability score, not legal advice.",
+        text: "Yes. Borderless AI checks your profile against official government visa rules and gives an honest score and checklist. It offers practical guidance, not legal advice.",
       },
     },
   ],

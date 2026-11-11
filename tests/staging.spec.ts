@@ -255,11 +255,11 @@ test.describe('Live Staging End-to-End Verification', () => {
     await page.getByRole('button', { name: 'Check My Chances' }).click();
     await expect(page).toHaveURL(/\/results$/, { timeout: 60_000 });
 
-    await expect(page.locator('h1', { hasText: 'Your Visa Strategy' })).toBeVisible();
-    await expect(page.getByText('No major strengths detected.')).toHaveCount(0);
-    await expect(page.getByText('Positive Factors').first()).toBeVisible();
-    await page.getByRole('button', { name: 'Inspect Sources' }).first().click();
-    await expect(page.getByText('Official Citations').first()).toBeVisible();
+    await expect(page.locator('h1', { hasText: 'Your Visa Plan' })).toBeVisible();
+    await expect(page.getByText('No key strengths listed yet.')).toHaveCount(0);
+    await expect(page.getByText('What Helps Your Chances').first()).toBeVisible();
+    await page.getByRole('button', { name: 'View Official Sources' }).first().click();
+    await expect(page.getByText('Official Government Links').first()).toBeVisible();
   });
 
   test('Layer 3B: Authenticated Clerk user -> multi-turn /chat context & refusal -> /dashboard & /history', async ({ page }) => {
@@ -358,7 +358,7 @@ test.describe('Live Staging End-to-End Verification', () => {
     await expect(page.locator('.prose')).toHaveCount(2, { timeout: 60_000 });
     await expect(page.locator('.animate-bounce').first()).toBeHidden({ timeout: 60_000 });
     const sgBubble = page.locator('.prose').last();
-    await expect(sgBubble).toContainText(/cannot provide legal or visa requirements for singapore/i);
+    await expect(sgBubble).toContainText(/cannot share official visa requirements for singapore/i);
     await expect(sgBubble).toContainText(/currently unavailable/i);
 
     // Create 1 authenticated score submission and verify /dashboard & /history rehydration
@@ -385,14 +385,14 @@ test.describe('Live Staging End-to-End Verification', () => {
     expect(authScoreStatus).toBe(200);
 
     await page.goto('/dashboard');
-    await expect(page.getByText('1 / 5 assessments used this month')).toBeVisible();
+    await expect(page.getByText('1 / 5 visa checks used this month')).toBeVisible();
     const recentCard = page.locator('main ul li').first();
     await expect(recentCard).toBeVisible();
     await recentCard.click();
 
     await expect(page).toHaveURL(/\/results$/);
-    await expect(page.locator('h1', { hasText: 'Your Visa Strategy' })).toBeVisible();
-    await expect(page.getByText('No major strengths detected.')).toHaveCount(0);
+    await expect(page.locator('h1', { hasText: 'Your Visa Plan' })).toBeVisible();
+    await expect(page.getByText('No key strengths listed yet.')).toHaveCount(0);
 
     await page.goto('/history');
     await expect(page.locator('main ul li').first()).toBeVisible({ timeout: 15_000 });

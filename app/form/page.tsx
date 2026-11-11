@@ -58,9 +58,9 @@ const FIELD_OF_WORK_OPTIONS = [
 ];
 
 const STEPS = [
-  { id: 1, title: "You & destination", short: "About" },
-  { id: 2, title: "Background", short: "Profile" },
-  { id: 3, title: "Language & goal", short: "Finish" },
+  { id: 1, title: "You & where you want to go", short: "Basics" },
+  { id: 2, title: "Education & work", short: "Experience" },
+  { id: 3, title: "English, savings & goal", short: "Final Step" },
 ] as const;
 
 const inputClass =
@@ -88,8 +88,8 @@ export default function FormPage() {
 
   function validateStep1(form: HTMLFormElement): string | null {
     const fd = new FormData(form);
-    if (!String(fd.get("nationality") ?? "").trim()) return "Enter your nationality.";
-    if (!fd.get("targetRegion")) return "Pick a target region.";
+    if (!String(fd.get("nationality") ?? "").trim()) return "Please choose your nationality.";
+    if (!fd.get("targetRegion")) return "Please pick where you want to move.";
     const age = Number(fd.get("age"));
     if (!Number.isFinite(age) || age < 18 || age > 80) return "Age must be between 18 and 80.";
     return null;
@@ -97,28 +97,28 @@ export default function FormPage() {
 
   function validateStep2(form: HTMLFormElement): string | null {
     const fd = new FormData(form);
-    if (!fd.get("education")) return "Select education level.";
+    if (!fd.get("education")) return "Please choose your education level.";
     const y = Number(fd.get("yearsExperience"));
-    if (!Number.isFinite(y) || y < 0 || y > 60) return "Years of experience must be 0–60.";
-    if (!String(fd.get("fieldOfWork") ?? "").trim()) return "Enter your field of work.";
+    if (!Number.isFinite(y) || y < 0 || y > 60) return "Please enter work experience between 0 and 60 years.";
+    if (!String(fd.get("fieldOfWork") ?? "").trim()) return "Please choose your kind of work.";
     return null;
   }
 
   function validateStep3(form: HTMLFormElement): string | null {
     const fd = new FormData(form);
-    if (!fd.get("englishTest")) return "Select an English test option.";
+    if (!fd.get("englishTest")) return "Please pick an English test option.";
     const s = Number(fd.get("savingsUsd"));
-    if (!Number.isFinite(s) || s < 0) return "Enter savings in USD (0 or more).";
-    if (!fd.get("goal")) return "Select a goal.";
+    if (!Number.isFinite(s) || s < 0) return "Please enter your savings in USD (0 or more).";
+    if (!fd.get("goal")) return "Please choose your main goal.";
     const test = String(fd.get("englishTest"));
     const scoreRaw = String(fd.get("testScore") ?? "").trim();
     if (scoreRaw && test === "ielts") {
       const sc = Number(scoreRaw);
-      if (!Number.isFinite(sc) || sc < 0 || sc > 9) return "IELTS overall band is usually 0–9.";
+      if (!Number.isFinite(sc) || sc < 0 || sc > 9) return "Please enter an IELTS score between 0 and 9.";
     }
     if (scoreRaw && test === "toefl") {
       const sc = Number(scoreRaw);
-      if (!Number.isFinite(sc) || sc < 0 || sc > 120) return "TOEFL iBT total is typically 0–120.";
+      if (!Number.isFinite(sc) || sc < 0 || sc > 120) return "Please enter a TOEFL score between 0 and 120.";
     }
     return null;
   }
@@ -269,22 +269,22 @@ export default function FormPage() {
     <main className="mx-auto max-w-lg px-4 py-10 sm:px-6 sm:py-14">
       <div className="mb-8">
         <p className="text-xs font-medium uppercase tracking-widest text-accent">
-          Assessment
+          Visa Eligibility Check
         </p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-          Visa profile
+          Tell us about yourself
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-          Single column, a few steps. Demo scoring only—not immigration advice.
+          Takes 3 quick steps. Gives you practical guidance based on government rules—not official legal advice.
         </p>
         
         {/* Quick 1-Click Client Presets */}
         <div className="mt-4 rounded-xl border border-indigo-100 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/40 p-3.5">
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-xs font-semibold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
-              <span>⚡</span> 1-Click Demo Profiles (Instant Results):
+              <span>⚡</span> Try a Sample Profile (Instant Preview):
             </span>
-            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">Skip manual entry</span>
+            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">Skip filling out the form</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {DEMO_PRESETS.map((preset) => (
@@ -359,7 +359,7 @@ export default function FormPage() {
           <div className={step === 1 ? "space-y-5" : "hidden"} aria-hidden={step !== 1}>
             <div>
               <label htmlFor="nationality" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Nationality
+                Your nationality (passport country)
               </label>
               <select
                 id="nationality"
@@ -377,7 +377,7 @@ export default function FormPage() {
             </div>
             <div>
               <label htmlFor="targetRegion" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Target region
+                Where do you want to move?
               </label>
               <select
                 id="targetRegion"
@@ -398,13 +398,13 @@ export default function FormPage() {
                   data-testid="uncertified-region-notice"
                   className="mt-1.5 text-xs text-amber-700 dark:text-amber-400"
                 >
-                  Certified live scoring currently covers Canada, UK, USA, Germany/Northern Europe, and Australia/New Zealand. Other regions are preview-only.
+                  Live scoring is currently ready for Canada, the UK, the USA, Germany/Northern Europe, and Australia/New Zealand. Other regions are not available for live scoring yet.
                 </p>
               )}
             </div>
             <div>
               <label htmlFor="age" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Age
+                Your age
               </label>
               <input
                 id="age"
@@ -422,7 +422,7 @@ export default function FormPage() {
           <div className={step === 2 ? "space-y-5" : "hidden"} aria-hidden={step !== 2}>
             <div>
               <label htmlFor="education" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Education level
+                Highest education completed
               </label>
               <select
                 id="education"
@@ -432,14 +432,14 @@ export default function FormPage() {
                 className={inputClass}
               >
                 <option value="high_school">High School</option>
-                <option value="bachelor">Bachelor</option>
-                <option value="master">Master</option>
-                <option value="phd">PhD</option>
+                <option value="bachelor">Bachelor&apos;s Degree</option>
+                <option value="master">Master&apos;s Degree</option>
+                <option value="phd">PhD / Doctorate</option>
               </select>
             </div>
             <div>
               <label htmlFor="yearsExperience" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Years of work experience
+                Years of skilled work experience
               </label>
               <input
                 id="yearsExperience"
@@ -454,7 +454,7 @@ export default function FormPage() {
             </div>
             <div>
               <label htmlFor="fieldOfWork" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Field of work
+                What kind of work do you do?
               </label>
               <select
                 id="fieldOfWork"
@@ -477,14 +477,14 @@ export default function FormPage() {
                 name="hasJobOffer"
                 className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-accent focus:ring-accent"
               />
-              <span>I have a confirmed job offer / employer sponsorship</span>
+              <span>I already have a job offer in that country</span>
             </label>
           </div>
 
           <div className={step === 3 ? "space-y-5" : "hidden"} aria-hidden={step !== 3}>
             <div>
               <label htmlFor="englishTest" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                English test
+                English language test
               </label>
               <select
                 id="englishTest"
@@ -493,14 +493,14 @@ export default function FormPage() {
                 defaultValue="none"
                 className={inputClass}
               >
-                <option value="none">None</option>
+                <option value="none">No test yet</option>
                 <option value="ielts">IELTS</option>
                 <option value="toefl">TOEFL</option>
               </select>
             </div>
             <div>
               <label htmlFor="testScore" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Test score <span className="font-normal text-slate-500 dark:text-slate-400">(optional)</span>
+                Your test score <span className="font-normal text-slate-500 dark:text-slate-400">(optional)</span>
               </label>
               <input
                 id="testScore"
@@ -509,17 +509,16 @@ export default function FormPage() {
                 min={0}
                 max={120}
                 step={0.5}
-                placeholder="IELTS band or TOEFL total"
+                placeholder="Example: 7.5 for IELTS or 100 for TOEFL"
                 className={inputClass}
               />
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                Leave blank if no test yet. Use overall band for IELTS (e.g. 7.5) or total for
-                TOEFL (e.g. 100).
+                Leave blank if you haven&apos;t taken a test yet. Enter your overall IELTS score (0–9) or TOEFL score (0–120).
               </p>
             </div>
             <div>
               <label htmlFor="savingsUsd" className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                Savings (USD)
+                Available savings (in US Dollars)
               </label>
               <input
                 id="savingsUsd"
@@ -533,13 +532,13 @@ export default function FormPage() {
               />
             </div>
             <fieldset>
-              <legend className="text-sm font-medium text-slate-800 dark:text-slate-200">Goal</legend>
+              <legend className="text-sm font-medium text-slate-800 dark:text-slate-200">What is your main goal?</legend>
               <div className="mt-3 flex flex-col gap-2">
                 {(
                   [
-                    { value: "work" as const, label: "Work" },
-                    { value: "study" as const, label: "Study" },
-                    { value: "pr" as const, label: "PR" },
+                    { value: "work" as const, label: "Work Visa (move for a job)" },
+                    { value: "study" as const, label: "Student Visa (study abroad)" },
+                    { value: "pr" as const, label: "Stay Long-Term (Permanent Residency / PR)" },
                   ] as const
                 ).map((g) => (
                   <label

@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 
   if (!userId) {
     return NextResponse.json(
-      { error: "Unauthorized. Please sign in to view your assessment history." },
+      { error: "Unauthorized. Please sign in to view your saved visa checks." },
       { status: 401 },
     );
   }
@@ -55,6 +55,6 @@ export async function GET(req: Request) {
     log("error", "history_fetch_failed", {
       details: err instanceof Error ? err.message : String(err),
     });
-    return NextResponse.json({ error: "Failed to load history" }, { status: 500 });
+    return NextResponse.json({ error: "Could not load your saved visa checks. Please try again." }, { status: 500 });
   }
 }

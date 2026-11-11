@@ -30,7 +30,7 @@ function matchesGoal(goal: GoalFilter, regionText: string): boolean {
   if (goal === "Any") return true;
   if (goal === "Work") return /(work|job|employer|sponsor|employment)/i.test(regionText);
   if (goal === "Study") return /(study|student|graduate|university|post-study)/i.test(regionText);
-  return /(pr|permanent residence|citizenship|long-term)/i.test(regionText);
+  return /(pr|permanent residen|stay permanently|permanent stay|citizenship|long-term)/i.test(regionText);
 }
 
 export default function ExplorePage() {
@@ -63,52 +63,51 @@ export default function ExplorePage() {
           Explore
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Explore Immigration Options by Region
+          Explore Visa Options by Region
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
-          Quick regional snapshot to compare complexity, costs, and momentum before
-          running a profile check.
+        <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+          Compare how expensive, tough, and fast each region is before you check your personal visa chances.
         </p>
       </div>
 
       <div className="mx-auto mt-8 grid max-w-4xl gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-card p-4 shadow-soft sm:grid-cols-3">
         <label className="text-sm">
-          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Goal</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Your Main Goal</span>
           <select
             value={goal}
             onChange={(e) => setGoal(e.target.value as GoalFilter)}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
-            <option>Any</option>
-            <option>Work</option>
-            <option>Study</option>
-            <option>PR</option>
+            <option value="Any">Any Goal</option>
+            <option value="Work">Work Visa</option>
+            <option value="Study">Study Abroad</option>
+            <option value="PR">Stay Long-Term (PR)</option>
           </select>
         </label>
         <label className="text-sm">
-          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Budget</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Moving Budget</span>
           <select
             value={budget}
             onChange={(e) => setBudget(e.target.value as BudgetFilter)}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
-            <option>Any</option>
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
+            <option value="Any">Any Budget</option>
+            <option value="Low">Low Cost</option>
+            <option value="Medium">Medium Cost</option>
+            <option value="High">High Cost</option>
           </select>
         </label>
         <label className="text-sm">
-          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Difficulty tolerance</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Visa Difficulty</span>
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as DifficultyFilter)}
             className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-accent focus:ring-4 focus:ring-[var(--ring)]"
           >
-            <option>Any</option>
-            <option>Easy</option>
-            <option>Medium</option>
-            <option>Hard</option>
+            <option value="Any">Any Difficulty</option>
+            <option value="Easy">Easier to Qualify</option>
+            <option value="Medium">Moderate</option>
+            <option value="Hard">Harder / Competitive</option>
           </select>
         </label>
       </div>

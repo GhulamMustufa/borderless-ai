@@ -100,9 +100,9 @@ export default function HistoryPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Latest checks</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Your saved visa checks</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-          Filter by goal/region, then compare any two submissions.
+          Filter by goal or region, and pick any two checks to compare side-by-side.
         </p>
       </div>
 
@@ -113,9 +113,9 @@ export default function HistoryPage() {
           className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-accent"
         >
           <option value="">All goals</option>
-          <option value="work">Work</option>
-          <option value="study">Study</option>
-          <option value="pr">PR</option>
+          <option value="work">Work Visa</option>
+          <option value="study">Student Visa</option>
+          <option value="pr">Permanent Stay (PR)</option>
         </select>
         <select
           value={region}
@@ -134,34 +134,35 @@ export default function HistoryPage() {
 
       {compareItems.length === 2 ? (
         <div className="mb-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-card p-4">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Compare</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Side-by-side comparison</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {compareItems.map((item) => (
               <div key={item.id} className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3">
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {new Date(item.createdAt).toLocaleString()} - {item.profile.goal.toUpperCase()} -{" "}
+                  {new Date(item.createdAt).toLocaleString()} -{" "}
+                  {item.profile.goal === "pr" ? "Permanent Stay (PR)" : item.profile.goal === "work" ? "Work" : "Study"} -{" "}
                   {item.profile.targetRegion}
                 </p>
                 <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                  Avg score: {avgScore(item)}%
+                  Average score: {avgScore(item)}%
                 </p>
                 <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                  Top pathway: {item.result.pathways[0]?.name ?? "N/A"} (
+                  Best visa option: {item.result.pathways[0]?.name ?? "N/A"} (
                   {item.result.pathways[0]?.baseScore ?? item.result.pathways[0]?.score ?? 0}%)
                 </p>
               </div>
             ))}
           </div>
           <p className="mt-3 text-sm font-medium text-slate-900 dark:text-white">
-            Delta: {avgScore(compareItems[0]) - avgScore(compareItems[1])} points
+            Score difference: {avgScore(compareItems[0]) - avgScore(compareItems[1])} points
           </p>
         </div>
       ) : null}
 
-      {loading ? <p className="text-sm text-slate-600 dark:text-slate-400">Loading history...</p> : null}
+      {loading ? <p className="text-sm text-slate-600 dark:text-slate-400">Loading your saved checks...</p> : null}
       {error ? <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p> : null}
       {!loading && !error && items.length === 0 ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">No saved checks found in DB yet.</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">You don&apos;t have any saved visa checks yet.</p>
       ) : null}
 
       <ul className="space-y-3">
@@ -171,11 +172,12 @@ export default function HistoryPage() {
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(item.createdAt).toLocaleString()}</p>
                 <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                  {item.profile.nationality} - {item.profile.goal.toUpperCase()} -{" "}
+                  {item.profile.nationality} -{" "}
+                  {item.profile.goal === "pr" ? "Permanent Stay (PR)" : item.profile.goal === "work" ? "Work" : "Study"} -{" "}
                   {item.profile.targetRegion}
                 </p>
                 <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                  Avg score {avgScore(item)}% | Model {item.model} | {item.promptVersion}
+                  Average score: {avgScore(item)}% · {item.result.pathways.length} visa options checked
                 </p>
               </div>
               <button

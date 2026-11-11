@@ -52,7 +52,7 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
       </div>
 
       <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
-        See how your scores change instantly without submitting a new application.
+        Try changing your details below to see how your score would improve.
       </p>
 
       <div className="space-y-4">
@@ -72,7 +72,7 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
             }}
             className="w-full mb-3 rounded-md border border-slate-200 dark:border-slate-700 text-sm p-2 text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-900/50 focus:ring-opacity-50"
           >
-            <option value="none">None</option>
+            <option value="none">No test yet</option>
             <option value="ielts">IELTS</option>
             <option value="toefl">TOEFL</option>
           </select>
@@ -121,7 +121,7 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
         <div>
           <div className="flex justify-between items-center mb-1.5">
             <label className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
-              Savings (USD)
+              Available Savings (USD)
             </label>
             <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">${profile.savingsUsd.toLocaleString()}</span>
           </div>
@@ -139,7 +139,7 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
         {/* Education Level */}
         <div>
           <label className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1.5 block">
-            Education Level
+            Highest Education
           </label>
           <select 
             value={profile.education}
@@ -147,9 +147,9 @@ export function WhatIfSimulator({ initialProfile, onChange, onReset }: WhatIfSim
             className="w-full rounded-md border border-slate-200 dark:border-slate-700 text-sm p-2 text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-900/50 focus:ring-opacity-50"
           >
             <option value="high_school">High School</option>
-            <option value="bachelor">Bachelor's Degree</option>
-            <option value="master">Master's Degree</option>
-            <option value="phd">PhD</option>
+            <option value="bachelor">Bachelor&apos;s Degree</option>
+            <option value="master">Master&apos;s Degree</option>
+            <option value="phd">PhD / Doctorate</option>
           </select>
         </div>
 

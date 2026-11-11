@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Your Visa Assessment Results",
+  title: "Your Visa Plan & Results",
   description:
-    "See your personalized AI visa score and ranked pathways. Understand your eligibility before applying.",
+    "See your personalized visa scores, rejection risks, and next steps before applying.",
   // Results are personalised and dynamic — don't index them
   robots: {
     index: false,

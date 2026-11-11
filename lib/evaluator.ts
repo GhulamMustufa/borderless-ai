@@ -136,7 +136,7 @@ function buildVerifiedProfileStrengths(profile: NormalizedProfile): EvaluatedReq
     strengths.push({
       id: "profile-education",
       type: "points",
-      description: `Academic credential held: ${labelMap[orig.education]}`,
+      description: `Completed education: ${labelMap[orig.education]}`,
       pointsAwarded: orig.education === "phd" ? 28 : orig.education === "master" ? 24 : 16,
       met: true,
       scoreImpact: orig.education === "phd" ? 28 : orig.education === "master" ? 24 : 16,
@@ -151,7 +151,7 @@ function buildVerifiedProfileStrengths(profile: NormalizedProfile): EvaluatedReq
     strengths.push({
       id: "profile-language",
       type: "points",
-      description: `Verified English test proficiency: CEFR ${profile.languageLevelCEFR}${scoreDetail}`,
+      description: `English test score provided${scoreDetail}`,
       pointsAwarded: 20,
       met: true,
       scoreImpact: 20,
@@ -162,7 +162,7 @@ function buildVerifiedProfileStrengths(profile: NormalizedProfile): EvaluatedReq
     strengths.push({
       id: "profile-experience",
       type: "points",
-      description: `Skilled work experience: ${orig.yearsExperience} year${orig.yearsExperience === 1 ? "" : "s"} in ${profile.canonicalOccupation}`,
+      description: `Work experience: ${orig.yearsExperience} year${orig.yearsExperience === 1 ? "" : "s"} in ${profile.canonicalOccupation}`,
       pointsAwarded: Math.min(24, orig.yearsExperience * 4),
       met: true,
       scoreImpact: Math.min(24, orig.yearsExperience * 4),
@@ -173,7 +173,7 @@ function buildVerifiedProfileStrengths(profile: NormalizedProfile): EvaluatedReq
     strengths.push({
       id: "profile-savings",
       type: "conditional",
-      description: `Available financial settlement savings: $${orig.savingsUsd.toLocaleString()} USD`,
+      description: `Available savings: $${orig.savingsUsd.toLocaleString()} USD`,
       pointsAwarded: 12,
       met: true,
       scoreImpact: 12,
@@ -184,7 +184,7 @@ function buildVerifiedProfileStrengths(profile: NormalizedProfile): EvaluatedReq
     strengths.push({
       id: "profile-job-offer",
       type: "hard",
-      description: "Confirmed employer job offer or sponsorship indicated.",
+      description: "You indicated you already have a job offer.",
       pointsAwarded: 30,
       met: true,
       scoreImpact: 30,

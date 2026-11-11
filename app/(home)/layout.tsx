@@ -5,7 +5,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://borderless.ghulam-
 export const metadata: Metadata = {
   title: "Borderless AI — Free Visa Eligibility Checker",
   description:
-    "Check your chances for 70+ visa types worldwide. AI-powered immigration advisor backed by official government data. No legal jargon. Instant results.",
+    "Check your visa chances for work, study, and long-term visas across 14 global regions. Official government rules explained in everyday English.",
   alternates: {
     canonical: BASE_URL,
   },
@@ -17,7 +17,7 @@ const websiteJsonLd = {
   name: "Borderless AI",
   url: BASE_URL,
   description:
-    "AI-powered immigration advisor. Check your visa eligibility across 70+ countries backed by official government data.",
+    "Free visa eligibility checker and AI Visa Assistant backed by official government websites across 14 global regions.",
   potentialAction: {
     "@type": "SearchAction",
     target: {
@@ -36,7 +36,7 @@ const organizationJsonLd = {
   logo: `${BASE_URL}/favicon.svg`,
   sameAs: [],
   description:
-    "AI-powered immigration advisor helping people navigate visa eligibility across 70+ countries.",
+    "Simple visa eligibility checker and AI assistant helping people compare work, study, and long-term move options abroad.",
 };
 
 const softwareJsonLd = {
@@ -51,7 +51,7 @@ const softwareJsonLd = {
     priceCurrency: "USD",
   },
   description:
-    "Check your visa eligibility across 70+ countries with AI-powered scoring based on official government data.",
+    "Check your visa chances in 2 minutes using verified government rules, rejection risk alerts, and a printable checklist.",
 };
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {

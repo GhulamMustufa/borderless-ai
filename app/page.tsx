@@ -57,7 +57,7 @@ export default function Home() {
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-200 dark:border-indigo-800/70 bg-indigo-50/80 dark:bg-indigo-950/40 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 backdrop-blur-xs">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              1,450+ Verified Pathways · 70+ Countries · Zero Hallucinations
+              Official Gov Rules · Honest Visa Chances · Zero Guesswork
             </div>
 
             <h1 className="text-balance text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
@@ -69,9 +69,10 @@ export default function Home() {
             </h1>
 
             <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-              Stop wasting thousands on predatory consultants or trusting feel-good 90% quizzes. 
-              Borderless AI uses <strong>refusal-calibrated algorithms</strong>, an <strong>AI Immigration Copilot</strong>, 
-              and a database of <strong>1,454 official pathways</strong> so you invest only where you qualify.
+              Stop guessing or paying expensive agents just to see what visas fit you.
+              Borderless AI checks your profile against <strong>real government rules</strong>, spots{" "}
+              <strong>what might get your visa rejected</strong>, and gives you a clear plan with our{" "}
+              <strong>AI Visa Assistant</strong>.
             </p>
 
             {/* Action Buttons */}
@@ -80,7 +81,7 @@ export default function Home() {
                 href="/form"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:bg-indigo-700 hover:shadow-indigo-500/35 active:scale-98"
               >
-                <span>Check My Eligibility — Free</span>
+                <span>Check My Chances — Free</span>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
@@ -93,14 +94,14 @@ export default function Home() {
                 <svg className="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
-                <span>Ask AI Copilot</span>
+                <span>Ask AI Assistant</span>
               </Link>
 
               <Link
                 href="/explore"
                 className="inline-flex h-12 items-center justify-center rounded-xl px-4 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
               >
-                Explore 1,450+ Visas →
+                Explore Countries →
               </Link>
             </div>
 
@@ -108,11 +109,11 @@ export default function Home() {
             <div className="mt-8 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white/60 dark:bg-slate-900/50 p-4 shadow-xs backdrop-blur-xs">
               <div className="flex items-center justify-between mb-2.5">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  ⚡ 1-Click Interactive Demos (Skip Form):
+                  ⚡ Try a Sample Profile (No Form Needed):
                 </p>
-                <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">Instant PDF Preview</span>
+                <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">Instant Preview</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 {DEMO_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
@@ -139,9 +140,9 @@ export default function Home() {
             {/* Key Metrics */}
             <div className="mt-8 grid grid-cols-3 gap-3">
               {[
-                { value: "1,454", label: "Verified Pathways" },
-                { value: "70+", label: "Countries Covered" },
-                { value: "pgvector", label: "Government RAG" },
+                { value: "Official", label: "Government Rules" },
+                { value: "Honest", label: "Spots Rejection Risks" },
+                { value: "2 Mins", label: "Free Visa Plan" },
               ].map((s) => (
                 <div key={s.label} className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-3 text-center sm:text-left">
                   <p className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{s.value}</p>
@@ -151,7 +152,7 @@ export default function Home() {
             </div>
 
             <p className="mt-4 text-xs text-slate-400">
-              🔒 100% confidential. No credit card or account needed to run your first check.
+              🔒 Private &amp; free. No card or account needed for your first visa check.
             </p>
           </div>
 
@@ -161,7 +162,7 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <span className="text-xl">🇨🇦</span>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Sample Assessment Result
+                  Sample Result
                 </span>
               </div>
               <span className="rounded-full bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400 ring-1 ring-amber-200 dark:ring-amber-800">
@@ -169,25 +170,25 @@ export default function Home() {
               </span>
             </div>
 
-            <p className="font-bold text-lg text-slate-900 dark:text-white">Canada Express Entry (FSW)</p>
+            <p className="font-bold text-lg text-slate-900 dark:text-white">Canada Express Entry (Skilled Worker)</p>
             <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
               <div className="h-full w-[64%] rounded-full bg-amber-500 transition-all duration-1000" />
             </div>
 
             <p className="mt-3.5 text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Profile enters Express Entry pool, but CRS score (~440) falls below recent draw cutoffs (~480). A provincial nomination (PNP) or Canadian job offer would guarantee an ITA.
+              You meet the basic rules to apply, but your estimated points (~440) are below recent cut-offs (~480). A provincial job nomination or Canadian job offer would boost your score for an invitation.
             </p>
 
             <div className="mt-4 space-y-2.5">
               <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3.5 text-xs">
-                <p className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Score Drivers (Refusal Breakdown)</p>
+                <p className="font-semibold text-slate-800 dark:text-slate-200 mb-2">What Helps &amp; Hurts Your Score</p>
                 <ul className="space-y-1.5 text-slate-600 dark:text-slate-300">
                   <li className="flex justify-between">
-                    <span>Master&apos;s degree evaluated</span>
+                    <span>Master&apos;s degree</span>
                     <span className="text-emerald-600 dark:text-emerald-400 font-semibold">+12 pts</span>
                   </li>
                   <li className="flex justify-between">
-                    <span>IELTS CLB 9 equivalent</span>
+                    <span>High English score (IELTS 8.0+)</span>
                     <span className="text-emerald-600 dark:text-emerald-400 font-semibold">+10 pts</span>
                   </li>
                   <li className="flex justify-between">
@@ -198,18 +199,18 @@ export default function Home() {
               </div>
 
               <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/40 p-3.5 text-xs border border-indigo-100 dark:border-indigo-900/50">
-                <p className="font-semibold text-indigo-900 dark:text-indigo-200">Top High-Impact Fix</p>
+                <p className="font-semibold text-indigo-900 dark:text-indigo-200">Best Way to Boost Your Score</p>
                 <p className="mt-1 text-indigo-700 dark:text-indigo-300 leading-relaxed">
-                  Target Ontario/BC PNP tech stream draws — adds 600 CRS points and eliminates refusal probability.
+                  Apply through provincial tech programs (like Ontario or BC) — adds 600 points and makes an invite far more likely.
                 </p>
               </div>
 
               <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-800/60 px-3.5 py-2.5 text-xs text-slate-600 dark:text-slate-300">
                 <span className="flex items-center gap-1.5">
-                  <span>⏱</span> Realistic Processing: <strong>12–18 mos</strong>
+                  <span>⏱</span> Typical Wait Time: <strong>12–18 mos</strong>
                 </span>
                 <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                  📄 PDF Action Plan Ready
+                  📄 Printable Plan Ready
                 </span>
               </div>
             </div>
@@ -218,7 +219,7 @@ export default function Home() {
               onClick={handleTryDemo}
               className="mt-4 w-full rounded-xl bg-slate-900 dark:bg-slate-800 py-2.5 text-xs font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-700 shadow-sm"
             >
-              Open Full Interactive Results Report →
+              See Full Sample Report →
             </button>
           </div>
         </div>
@@ -232,10 +233,10 @@ export default function Home() {
               Why We Are Different
             </h2>
             <h3 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-              Why Applicants Choose Borderless AI over Shady Consultants & Generic Quizzes
+              Why People Choose Borderless AI Over Costly Agents &amp; Fake Quizzes
             </h3>
             <p className="mt-3 text-base text-slate-600 dark:text-slate-400">
-              Traditional immigration services make money by keeping you in the dark. We give you transparent legal intelligence instantly.
+              Most free visa quizzes hand out unrealistic high scores, and consultants charge high fees upfront. We give you the truth and clear steps first.
             </p>
           </div>
 
@@ -243,9 +244,9 @@ export default function Home() {
             <table className="w-full text-left border-collapse text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50">
-                  <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Key Criteria</th>
-                  <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Predatory Consultants</th>
-                  <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Generic Online Quizzes</th>
+                  <th className="p-4 font-bold text-slate-700 dark:text-slate-300">What Matters</th>
+                  <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Paid Visa Agents</th>
+                  <th className="p-4 font-bold text-slate-500 dark:text-slate-400">Free Online Quizzes</th>
                   <th className="p-4 font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40">
                     Borderless AI
                   </th>
@@ -255,49 +256,49 @@ export default function Home() {
                 <tr>
                   <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Upfront Cost</td>
                   <td className="p-4 text-rose-500 font-medium">$3,000 – $8,000 upfront</td>
-                  <td className="p-4 text-amber-600">"Free" (harvests & sells email)</td>
+                  <td className="p-4 text-amber-600">&ldquo;Free&rdquo; (often sells your email)</td>
                   <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-indigo-50/30 dark:bg-indigo-950/20">
                     100% Free to Start
                   </td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Scoring Honesty</td>
-                  <td className="p-4 text-rose-500">Overpromises to close retainers</td>
-                  <td className="p-4 text-rose-500">Inflated 90%+ feel-good scores</td>
+                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Honest Scores</td>
+                  <td className="p-4 text-rose-500">Often promise easy approval to win clients</td>
+                  <td className="p-4 text-rose-500">Unrealistic 90%+ scores for anyone</td>
                   <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-indigo-50/30 dark:bg-indigo-950/20">
-                    Refusal-Calibrated & Strict
+                    Strict &amp; Honest (Spots Rejection Risks)
                   </td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Legal Evidence Citations</td>
-                  <td className="p-4 text-slate-500">Hidden behind consultations</td>
-                  <td className="p-4 text-slate-500">None (Wikipedia summaries)</td>
+                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Proof &amp; Official Links</td>
+                  <td className="p-4 text-slate-500">Rarely explained upfront</td>
+                  <td className="p-4 text-slate-500">No official government sources</td>
                   <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-indigo-50/30 dark:bg-indigo-950/20">
-                    Official Gazette & Gov Citations
+                    Direct Links to Gov Websites
                   </td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Interactive AI Copilot</td>
-                  <td className="p-4 text-slate-500">Wait days for slow email replies</td>
-                  <td className="p-4 text-slate-500">Static single-page quiz</td>
+                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">24/7 Q&amp;A Help</td>
+                  <td className="p-4 text-slate-500">Wait days for email replies</td>
+                  <td className="p-4 text-slate-500">Static one-page result</td>
                   <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-indigo-50/30 dark:bg-indigo-950/20">
-                    Instant RAG Policy Assistant
+                    Instant AI Assistant Using Gov Rules
                   </td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Action Plan PDF Export</td>
-                  <td className="p-4 text-slate-500">Only after full fee paid</td>
+                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Checklist &amp; PDF Plan</td>
+                  <td className="p-4 text-slate-500">Only after paying full fees</td>
                   <td className="p-4 text-slate-500">No downloadable plan</td>
                   <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-indigo-50/30 dark:bg-indigo-950/20">
-                    1-Click Printable Legal Roadmap
+                    1-Click Printable Visa Checklist
                   </td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Coverage</td>
-                  <td className="p-4 text-slate-500">Only 1 or 2 countries they sell</td>
-                  <td className="p-4 text-slate-500">Limited generic routes</td>
+                  <td className="p-4 font-semibold text-slate-800 dark:text-slate-200">Country Options</td>
+                  <td className="p-4 text-slate-500">Only 1 or 2 countries they specialize in</td>
+                  <td className="p-4 text-slate-500">Few basic suggestions</td>
                   <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 bg-indigo-50/30 dark:bg-indigo-950/20">
-                    1,454 Pathways across 70+ Countries
+                    14 Global Regions &amp; Live Top-Country Rules
                   </td>
                 </tr>
               </tbody>
@@ -310,13 +311,13 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            Full-Stack Immigration Intelligence
+            Everything in One Place
           </p>
           <h2 className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">
-            Everything You Need to Navigate Moving Abroad
+            Four Simple Tools to Plan Your Move
           </h2>
           <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
-            Four integrated tools working together so you never make a blind immigration decision.
+            Check where you qualify, ask questions, and get a step-by-step plan before paying any visa fees.
           </p>
         </div>
 
@@ -328,24 +329,24 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">1. Refusal-Calibrated Assessment</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">1. Honest Visa Eligibility Check</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Evaluates your human capital score, age, language test scores, savings, and field against points thresholds (e.g., German Chancenkarte, Canadian CRS, UK Skilled Worker salary floors).
+              Checks your age, degree, work experience, English score, and savings against real visa rules for Canada, the UK, the US, Germany, and Australia/NZ.
             </p>
             <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Identifies point deductions before you apply
+                <span className="text-emerald-500 font-bold">✓</span> Shows what could hurt your chances before you apply
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Recommends top 3 viable alternatives
+                <span className="text-emerald-500 font-bold">✓</span> Ranks your best visa options in order
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Takes just 2 minutes to complete
+                <span className="text-emerald-500 font-bold">✓</span> Takes about 2 minutes to fill out
               </li>
             </ul>
             <div className="mt-6">
               <Link href="/form" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
-                Launch Assessment Form →
+                Start Free Check →
               </Link>
             </div>
           </div>
@@ -357,24 +358,24 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">2. AI Immigration Copilot</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">2. AI Visa Assistant</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Ask policy, salary, and tax questions in natural language. Powered by Neon PostgreSQL pgvector cosine similarity search over government gazettes — with zero hallucinated rules.
+              Ask questions about visas, salary rules, or documents in everyday words. Answers come straight from verified government pages—never guesses.
             </p>
             <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Cites verified official sources with direct URLs
+                <span className="text-emerald-500 font-bold">✓</span> Includes direct links to official government websites
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Persistent chat threads saved to your cloud account
+                <span className="text-emerald-500 font-bold">✓</span> Saves your chats safely to your account
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Included free with your Borderless AI account
+                <span className="text-emerald-500 font-bold">✓</span> Free to use with a free account
               </li>
             </ul>
             <div className="mt-6">
               <Link href="/chat" className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline">
-                Chat with Immigration Copilot →
+                Ask AI Assistant →
               </Link>
             </div>
           </div>
@@ -386,24 +387,24 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">3. Global Pathway Explorer</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">3. Country &amp; Region Explorer</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Browse 1,454 verified visa categories across 70+ nations. Filter by your goals: Digital Nomad, Skilled Worker, Founder/Startup, Investor, Study-to-PR, or Working Holiday.
+              Compare 14 major regions side-by-side. Filter by your goal (Work, Study, or Permanent Stay), budget, and how strict the visa rules are.
             </p>
             <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Direct links to official government application pages
+                <span className="text-emerald-500 font-bold">✓</span> Clear pros and cons for every region
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Speed, cost, and difficulty ratings for every route
+                <span className="text-emerald-500 font-bold">✓</span> Speed, cost, and difficulty badges at a glance
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Filter by budget (Low, Medium, High)
+                <span className="text-emerald-500 font-bold">✓</span> Jump straight into an eligibility check for any region
               </li>
             </ul>
             <div className="mt-6">
               <Link href="/explore" className="text-xs font-semibold text-sky-600 dark:text-sky-400 hover:underline">
-                Explore All 1,454 Pathways →
+                Explore All Regions →
               </Link>
             </div>
           </div>
@@ -415,24 +416,24 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">4. PDF Action Plan & Dashboard</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">4. Printable Plan &amp; Saved Results</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Generate a printable legal roadmap complete with required document checklists, score drivers, and percentile benchmarking against thousands of applicant profiles.
+              Download a clean, printable checklist showing what documents you need, why you got your score, and how small changes improve your odds.
             </p>
             <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-slate-400">
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> 1-click printable PDF to share with family or advisors
+                <span className="text-emerald-500 font-bold">✓</span> 1-click printable PDF to keep or share with family
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Human capital benchmarks in personal dashboard
+                <span className="text-emerald-500 font-bold">✓</span> Interactive &ldquo;What-If&rdquo; tool to test score changes
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-emerald-500 font-bold">✓</span> Cloud-synced assessment history
+                <span className="text-emerald-500 font-bold">✓</span> Past visa checks saved in your personal dashboard
               </li>
             </ul>
             <div className="mt-6">
               <button onClick={handleTryDemo} className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
-                View Sample Action Plan →
+                View Sample Plan →
               </button>
             </div>
           </div>
@@ -443,46 +444,46 @@ export default function Home() {
       <section className="border-y border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0a0f1d] py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h2 className="text-center text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            Actionable Deliverables
+            What You Get
           </h2>
           <h3 className="mt-2 text-center text-3xl font-bold text-slate-900 dark:text-white">
-            What You Receive From Every Assessment
+            Included in Every Visa Check
           </h3>
           <p className="mx-auto mt-2 max-w-xl text-center text-sm text-slate-500 dark:text-slate-400">
-            Not a vague percentage — a structured, verifiable roadmap you can act on today.
+            Not just a random percentage — a clear checklist and action plan you can follow today.
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: "🎯",
-                title: "Refusal-Calibrated Probability",
-                text: "Calibrated to real visa refusal rates. A score of 64% is honest and highlights exactly what will trigger refusal.",
+                title: "Honest Visa Chances",
+                text: "Based on real visa rejection reasons. A 64% score tells you the truth and shows what could block your approval.",
               },
               {
                 icon: "📋",
-                title: "Pathway-Specific Document Checklist",
-                text: "5–8 specific documents you must gather (police clearance, apostilles, certified bank statements) for each route.",
+                title: "Document Checklist",
+                text: "A clear list of papers to gather for each visa, such as police checks, degree records, and bank statements.",
               },
               {
                 icon: "📉",
-                title: "Mathematical Score Drivers",
-                text: "See the exact mathematical drivers (+12 Master's, −18 no job offer) so you know what will move the needle.",
+                title: "Clear Score Breakdown",
+                text: "See exactly what raises or lowers your score (+12 for a Master's degree, −18 if you don't have a job offer yet).",
               },
               {
                 icon: "🔧",
-                title: "Highest-Impact Improvement",
-                text: "A single, prioritized action that provides the maximum points boost before you submit an application.",
+                title: "Top Way to Improve",
+                text: "One prioritized action that raises your chances the most before you spend money applying.",
               },
               {
                 icon: "⏱",
-                title: "Realistic Processing Timelines",
-                text: "Actual processing duration based on current consular backlogs, not marketing best-case scenarios.",
+                title: "Realistic Wait Times",
+                text: "Honest estimates of how long processing actually takes, not overly rosy best-case numbers.",
               },
               {
                 icon: "📎",
-                title: "Verified Government Citations",
-                text: "Direct source links to official immigration ministries (IRCC, BAMF, UK Home Office, USCIS, Home Affairs).",
+                title: "Official Government Links",
+                text: "Direct links to official government portals (Canada IRCC, UK GOV.UK, Germany BAMF, US USCIS, Australia Home Affairs).",
               },
             ].map((f) => (
               <article key={f.title} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
@@ -499,30 +500,30 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Our Legal Philosophy</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Why Our Scores Are Strict</p>
             <h2 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              We score like a skeptical immigration officer — not a travel agent
+              We score like a strict visa officer — not a salesperson
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Most free visa tools inflate scores to 90%+ to keep you happy and collect your data. We do the opposite. Our model aggressively penalizes low savings, missing language tests, and insufficient work experience — because <strong>those are the exact reasons visas get refused</strong>.
+              Many free visa quizzes give everyone 90%+ scores just to collect emails. We do the opposite. Our checker penalizes low savings, missing English tests, and limited work history — because <strong>those are the real reasons visas get rejected</strong>.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              Finding out you have a 45% chance today saves you <strong>$3,500 in non-refundable government fees</strong> and months of wasted waiting time.
+              Seeing a 45% score today can save you <strong>thousands in non-refundable visa fees</strong> and months of wasted waiting time.
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {[
-              { label: "Savings under $5,000", impact: "Heavy Penalty (Automatic Refusal Risk)" },
-              { label: "No Language Test (IELTS/PTE)", impact: "Heavy Penalty" },
-              { label: "Under 2 Years Experience", impact: "Penalized" },
-              { label: "High School Only", impact: "Strict Mode (Degree Required)" },
+              { label: "Savings under $5,000", impact: "Big Score Drop (High Rejection Risk)" },
+              { label: "No English Test (IELTS/TOEFL)", impact: "Lowers Score on Most Visas" },
+              { label: "Under 2 Years Experience", impact: "Fewer Points" },
+              { label: "High School Only", impact: "Limits Skilled Work Visas" },
               { label: "Master's or PhD", impact: "Score Boost (+12–15 pts)" },
-              { label: "Official Job Offer / PNP", impact: "Invitation Guarantee" },
+              { label: "Confirmed Job Offer", impact: "Major Boost (Unlocks Work Visas)" },
             ].map((r) => (
               <div key={r.label} className="flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 text-xs">
                 <span className="font-semibold text-slate-800 dark:text-slate-200">{r.label}</span>
-                <span className={`mt-1 font-medium ${r.impact.includes("Boost") || r.impact.includes("Guarantee") ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"}`}>
+                <span className={`mt-1 font-medium ${r.impact.includes("Boost") ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"}`}>
                   {r.impact}
                 </span>
               </div>
@@ -535,13 +536,13 @@ export default function Home() {
       <section className="border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0a0f1d] py-14">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 text-center">
           <h2 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-            Global Jurisdiction Coverage
+            Destinations We Cover
           </h2>
           <h3 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-            1,454 Visa Pathways Across 70+ Countries
+            Compare Options Across 14 World Regions
           </h3>
           <p className="mx-auto mt-2 max-w-lg text-xs text-slate-500 dark:text-slate-400">
-            Explore dedicated legal criteria across all major immigration hubs:
+            Live scoring covers top English &amp; European destinations, with regional guides across the globe:
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             {Object.values(REGIONS).map((label) => (
@@ -558,7 +559,7 @@ export default function Home() {
               href="/explore"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
             >
-              <span>Search complete directory in Explorer</span>
+              <span>Browse All Regions</span>
               <span>→</span>
             </Link>
           </div>
@@ -570,9 +571,9 @@ export default function Home() {
         <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Your Recent Profile Checks</h2>
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Your Recent Checks</h2>
               <Link href="/history" className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
-                View all past assessments →
+                View all past checks →
               </Link>
             </div>
             <ul className="space-y-2">
@@ -584,7 +585,7 @@ export default function Home() {
                   <span>
                     <span className="font-semibold">{item.nationality}</span>
                     {" · "}{REGIONS[item.targetRegion] ?? item.targetRegion}
-                    {" · "}{item.goal.toUpperCase()}
+                    {" · "}{item.goal === "pr" ? "Permanent Stay (PR)" : item.goal === "work" ? "Work" : "Study"}
                     {" · "}{item.fieldOfWork}
                   </span>
                   <span className="ml-4 shrink-0 text-slate-400">{fmtTime(item.submittedAt)}</span>
@@ -598,29 +599,29 @@ export default function Home() {
       {/* ── 8. FREQUENTLY ASKED QUESTIONS ─────────────────────── */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <h2 className="text-center text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-          Frequently Asked Questions
+          Common Questions
         </h2>
         <h3 className="mt-1 text-center text-2xl font-bold text-slate-900 dark:text-white">
-          Everything You Need to Know
+          Simple Answers Before You Start
         </h3>
 
         <div className="mt-8 space-y-4">
           {[
             {
               q: "How is Borderless AI different from ChatGPT?",
-              a: "Standard LLMs hallucinate outdated immigration thresholds and invent non-existent rules. Borderless AI uses Retrieval-Augmented Generation (RAG) with vector embeddings over official government immigration evidence. When it answers your questions, it is strictly bound to official legal gazettes and cites exact government links.",
+              a: "General AI chatbots can guess outdated fees or make up visa rules. Borderless AI searches our verified collection of official government pages first, gives direct links to the source, and tells you honestly if a country isn't covered yet.",
             },
             {
-              q: "Why are the probability scores conservative?",
-              a: "Because real immigration officers are conservative. Consulates refuse applications for missing language exams, insufficient funds, or missing job verification. We incorporate refusal penalties into our scoring so you fix weak spots before spending non-refundable application fees.",
+              q: "Why are the visa scores strict?",
+              a: "Because real visa officers are strict. Visas often get denied for missing language scores, low bank savings, or no job offer. Highlighting those weak spots early helps you fix them before spending non-refundable government fees.",
             },
             {
-              q: "Can I use this without creating an account?",
-              a: "Yes! You can run free eligibility assessments, browse all 1,454 visas, and test 1-click presets without an account. Creating a free account lets you sync chat history and save assessment plans to your personal dashboard.",
+              q: "Can I use this without signing up?",
+              a: "Yes! You can run free eligibility checks, browse all 14 regions, and try sample reports without an account. Creating a free account is only needed for the AI Chat and saving your history.",
             },
             {
-              q: "Where does your visa data come from?",
-              a: "Our database is sourced directly from official ministerial immigration portals including IRCC (Canada), GOV.UK (UK), BAMF & Make it in Germany, Department of Home Affairs (Australia), USCIS/State Dept (USA), and European Ministry gazettes.",
+              q: "Where do your visa rules come from?",
+              a: "Directly from official government immigration websites, including Canada (IRCC), the UK (GOV.UK), Germany (BAMF / Make it in Germany), Australia (Home Affairs), New Zealand (INZ), and the US (USCIS).",
             },
           ].map((item) => (
             <div key={item.q} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
@@ -638,13 +639,13 @@ export default function Home() {
           
           <div className="relative z-10 max-w-2xl mx-auto">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300 border border-indigo-400/30 mb-4">
-              ✨ Free Instant Access · No Card Needed
+              ✨ Free to Start · No Card Needed
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-              Stop Guessing. Discover Your Real Global Visa Options Today.
+              Stop Guessing. See Your Real Visa Options Today.
             </h2>
             <p className="mx-auto mt-4 text-sm sm:text-base leading-relaxed text-indigo-200">
-              A 2-minute assessment or a quick question with our AI Copilot is worth months of blind research. Know where you qualify and what to fix.
+              A 2-minute check or a quick chat with our AI Assistant saves months of blind searching. Know where you qualify and what to fix next.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -652,18 +653,18 @@ export default function Home() {
                 href="/form"
                 className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-xl bg-white px-8 text-sm font-bold text-indigo-900 shadow-lg hover:bg-slate-100 transition active:scale-98"
               >
-                Start Free Assessment
+                Start Free Check
               </Link>
               <Link
                 href="/chat"
                 className="w-full sm:w-auto inline-flex h-12 items-center justify-center rounded-xl border border-indigo-400/40 bg-indigo-950/60 px-6 text-sm font-semibold text-white hover:bg-indigo-900/60 transition active:scale-98"
               >
-                Ask AI Copilot
+                Ask AI Assistant
               </Link>
             </div>
 
             <p className="mt-5 text-xs text-indigo-300/70">
-              Grounded in 1,454 official pathways · Zero data selling · 100% confidential
+              Backed by official government websites · Your data stays private
             </p>
           </div>
         </div>

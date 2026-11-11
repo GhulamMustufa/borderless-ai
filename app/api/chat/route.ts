@@ -51,7 +51,7 @@ export async function GET(req: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return new Response(JSON.stringify({ error: 'Unauthorized. Please sign in to view chat history.' }), {
+      return new Response(JSON.stringify({ error: 'Unauthorized. Please sign in to view your saved chats.' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
     const { userId } = await auth();
     if (!userId) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized. Please sign in to use the AI chat.' }),
+        JSON.stringify({ error: 'Unauthorized. Please sign in to use the AI Assistant.' }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     const rate = checkRateLimit(`chat-${userId}`);
     if (!rate.allowed) {
       return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment before sending more messages.' }),
+        JSON.stringify({ error: 'Too many messages sent. Please wait a moment before sending another.' }),
         {
           status: 429,
           headers: {
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
       const rawBody = await req.text();
       parsedBody = rawBody ? JSON.parse(rawBody) : {};
     } catch {
-      return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
+      return new Response(JSON.stringify({ error: 'Invalid request format' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -121,14 +121,14 @@ export async function POST(req: Request) {
     const { messages, threadId: requestedThreadId } = parsedBody;
 
     if (!Array.isArray(messages) || messages.length === 0) {
-      return new Response(JSON.stringify({ error: 'Invalid request: messages array is required.' }), {
+      return new Response(JSON.stringify({ error: 'Please include at least one message.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     if (messages.length > 50) {
-      return new Response(JSON.stringify({ error: 'Conversation is too long. Please start a new chat.' }), {
+      return new Response(JSON.stringify({ error: 'This chat has gotten too long. Please click New Chat to start fresh.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -136,7 +136,7 @@ export async function POST(req: Request) {
 
     const latestMessage = messages[messages.length - 1];
     if (!latestMessage) {
-      return new Response(JSON.stringify({ error: 'No messages provided' }), {
+      return new Response(JSON.stringify({ error: 'Please enter a message.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -145,14 +145,14 @@ export async function POST(req: Request) {
     const userQuery = extractChatMessageText(latestMessage);
 
     if (typeof userQuery !== 'string' || userQuery.trim().length === 0) {
-      return new Response(JSON.stringify({ error: 'Message content cannot be empty.' }), {
+      return new Response(JSON.stringify({ error: 'Please type a question before sending.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     if (userQuery.length > 2000) {
-      return new Response(JSON.stringify({ error: 'Message too long. Please limit your message to 2,000 characters.' }), {
+      return new Response(JSON.stringify({ error: 'Your message is too long. Please keep it under 2,000 characters.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -182,9 +182,9 @@ export async function POST(req: Request) {
     // ------------------------------------------------------------------------
     if (isLegalInquiry && detectedCountries.length === 0 && unsupportedCountries.length > 0) {
       const countryListStr = unsupportedCountries.join(', ');
-      const refusalText = `I cannot provide legal or visa requirements for ${countryListStr} because certified, human-reviewed official sources for ${countryListStr} are currently unavailable in my database.
+      const refusalText = `Sorry, I cannot share official visa requirements for ${countryListStr} right now because verified government sources for ${countryListStr} are currently unavailable.
 
-To ensure your safety and prevent unverified legal guidance, Borderless AI only answers legal criteria using verified official sources (currently covering Canada, the United Kingdom, the United States, Australia, New Zealand, Germany, Sweden, Denmark, Norway, and Finland). Please consult official government portals for ${countryListStr} or an accredited immigration attorney.`;
+To make sure you never get guessed or inaccurate advice, Borderless AI only answers questions for countries where our team has checked official government rules (currently Canada, the UK, the USA, Australia, New Zealand, Germany, Sweden, Denmark, Norway, and Finland). Please visit the official government website for ${countryListStr} or talk to a licensed immigration lawyer.`;
 
       return await createStaticChatStreamResponse(refusalText, activeThreadId);
     }
@@ -195,7 +195,7 @@ To ensure your safety and prevent unverified legal guidance, Borderless AI only 
     // ------------------------------------------------------------------------
     if (isLegalInquiry && detectedCountries.length === 0) {
       const clarificationText =
-        'To provide accurate immigration guidance, could you please specify which country or visa pathway you are asking about (for example: Canada, the United Kingdom, the United States, Australia, or Germany)? Immigration requirements vary significantly by jurisdiction.';
+        'Which country are you asking about? Visa rules change completely from country to country—let me know your destination (such as Canada, the UK, the USA, Australia, or Germany) and I will check the official rules for you.';
 
       return await createStaticChatStreamResponse(clarificationText, activeThreadId);
     }
@@ -230,9 +230,9 @@ To ensure your safety and prevent unverified legal guidance, Borderless AI only 
 
       if (eligibleRows.length === 0) {
         const countryListStr = detectedCountries.join(', ');
-        const refusalText = `I cannot provide legal or visa requirements for ${countryListStr} because certified, human-reviewed official sources matching your question are currently unavailable in my database.
+        const refusalText = `Sorry, I cannot answer that question about ${countryListStr} yet because verified official government details matching your question are currently unavailable.
 
-To ensure your safety and prevent unverified legal guidance, Borderless AI does not generate ungrounded immigration conclusions. Please consult official government immigration portals for ${countryListStr} (such as official .gov or government sites) or an accredited immigration attorney for definitive, current requirements.`;
+To avoid giving wrong information, Borderless AI won't guess when an official rule isn't confirmed. Please check the official government website for ${countryListStr} or speak with a licensed immigration lawyer.`;
 
         return await createStaticChatStreamResponse(refusalText, activeThreadId);
       }
@@ -249,16 +249,16 @@ ${row.content}
         })
         .join('\n');
 
-      const systemPrompt = `You are Borderless AI, an expert immigration assistant.
-Active Destination Jurisdiction(s): ${detectedCountries.join(', ')}.
+      const systemPrompt = `You are Borderless AI, a helpful visa assistant.
+Active Destination(s): ${detectedCountries.join(', ')}.
 Your goal is to answer the user's questions strictly based on the provided Official Evidence.
 
 IMPORTANT RULES:
 1. ONLY use the information provided in the Official Evidence below.
-2. If the user asks about a country or visa rule that is NOT in the Official Evidence, gracefully decline that missing point rather than guessing. Say "I don't currently have certified official rules on that specific point in my database."
-3. When providing an answer, always cite your sources by mentioning the Country, Visa Name, and exact Source URL provided in the evidence.
-4. Format your responses cleanly using Markdown (bullet points, bold text for emphasis).
-5. Be concise, helpful, and professional.
+2. If the user asks about a country or visa rule that is NOT in the Official Evidence, politely explain that it isn't covered instead of guessing. Say "I don't currently have verified official rules on that specific detail."
+3. When giving an answer, always cite your sources by mentioning the Country, Visa Name, and exact Source URL from the evidence.
+4. Format your answers cleanly using Markdown (bullet points and bold text).
+5. Write in simple, everyday English. Avoid confusing legal jargon, and whenever you use a visa acronym (like CRS, LMIA, or CoS), briefly explain what it means in plain words.
 
 OFFICIAL EVIDENCE:
 ${contextString}
@@ -284,9 +284,9 @@ ${contextString}
     // ------------------------------------------------------------------------
     // CASE C: General conversational inquiry (Greetings, platform help, etc.)
     // ------------------------------------------------------------------------
-    const generalSystemPrompt = `You are Borderless AI, an intelligent assistant designed to help global professionals explore career and educational opportunities.
-Answer the user's general questions, greetings, or platform navigation questions politely and helpfully.
-If the user asks for specific immigration rules, visa criteria, or legal requirements, kindly ask them which country they are interested in so that official evidence can be checked.`;
+    const generalSystemPrompt = `You are Borderless AI, a friendly visa assistant helping people explore work, study, and long-term moving options abroad.
+Answer the user's general questions, greetings, or website help questions in simple, everyday English.
+If the user asks for specific visa rules or requirements, kindly ask which country they want to move to so you can check the official rules for that country.`;
 
     const result = streamText({
       model: openai('gpt-4o-mini'),

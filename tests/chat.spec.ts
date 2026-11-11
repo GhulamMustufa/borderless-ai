@@ -30,7 +30,7 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
 
     await page.goto('/chat');
 
-    await expect(page.locator('h1', { hasText: 'Borderless AI Immigration Copilot' })).toBeVisible();
+    await expect(page.locator('h1', { hasText: 'Borderless AI Visa Assistant' })).toBeVisible();
     await expect(page.getByTestId('chat-signin-gate')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole('button', { name: 'Sign In to Start Chatting' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Sign In to Continue' })).toBeVisible();
@@ -45,7 +45,7 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
 
   test('/explore -> /form?region=anz preselects Australia/New Zealand accurately', async ({ page }) => {
     await page.goto('/explore');
-    await expect(page.locator('h1', { hasText: 'Explore Immigration Options by Region' })).toBeVisible();
+    await expect(page.locator('h1', { hasText: 'Explore Visa Options by Region' })).toBeVisible();
 
     const anzCard = page.locator('article').filter({ hasText: 'Australia / New Zealand' }).first();
     await expect(anzCard).toBeVisible();
@@ -150,7 +150,7 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
     await page.locator('#englishTest').selectOption('ielts');
     await page.locator('#testScore').fill('12');
     await page.getByRole('button', { name: 'Check My Chances' }).click();
-    await expect(page.getByTestId('form-error')).toContainText('IELTS overall band is usually 0–9.');
+    await expect(page.getByTestId('form-error')).toContainText('Please enter an IELTS score between 0 and 9.');
 
     await page.locator('#testScore').fill('7.5');
     await page.getByRole('button', { name: 'Check My Chances' }).click();
@@ -161,13 +161,13 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
     expect(captured.payload?.hasJobOffer).toBe(true);
     expect(captured.payload?.testScore).toBe(7.5);
 
-    await expect(page.locator('h1', { hasText: 'Your Visa Strategy' })).toBeVisible();
+    await expect(page.locator('h1', { hasText: 'Your Visa Plan' })).toBeVisible();
     await expect(page.getByText('Skilled Worker Visa')).toBeVisible();
     await expect(page.getByText('Must hold a Certificate of Sponsorship from a licensed UK employer.')).toBeVisible();
-    await expect(page.getByText('No major strengths detected.')).toHaveCount(0);
+    await expect(page.getByText('No key strengths listed yet.')).toHaveCount(0);
 
     // Verify citation inspection drawer opens official GOV.UK link
-    await page.getByRole('button', { name: 'Inspect Sources' }).click();
+    await page.getByRole('button', { name: 'View Official Sources' }).click();
     await expect(page.getByRole('link', { name: /GOV\.UK Skilled Worker Visa/ })).toBeVisible();
   });
 
@@ -176,9 +176,9 @@ test.describe('Core Client & Guest Auth UI Flows (Mocked)', () => {
 
     await expect(page.locator('text=3 free consultation questions')).toHaveCount(0);
 
-    await page.getByRole('button', { name: /Open Full Interactive Results Report/ }).click();
+    await page.getByRole('button', { name: /See Full Sample Report/ }).click();
     await expect(page).toHaveURL(/\/results$/);
-    await expect(page.locator('h1', { hasText: 'Your Visa Strategy' })).toBeVisible();
+    await expect(page.locator('h1', { hasText: 'Your Visa Plan' })).toBeVisible();
     await expect(page.getByText('What-If Simulator')).toBeVisible();
 
     const firstBreakdownValue = page.locator('section', { hasText: 'Score Breakdown' }).first();

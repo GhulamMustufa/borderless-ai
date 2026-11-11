@@ -25,7 +25,7 @@ function createPathway(overrides: Partial<RankedPathway> & Pick<RankedPathway, "
       {
         id: "req-gen-exp",
         type: "hard",
-        description: "Standard professional skilled work experience criteria.",
+        description: "Meets skilled work experience requirement.",
         pointsAwarded: 15,
         met: true,
         scoreImpact: 15,
@@ -33,7 +33,7 @@ function createPathway(overrides: Partial<RankedPathway> & Pick<RankedPathway, "
       {
         id: "req-gen-lang",
         type: "points",
-        description: "Official English language test result (IELTS / TOEFL).",
+        description: "Verified English test score (IELTS / TOEFL).",
         pointsAwarded: 20,
         met: true,
         scoreImpact: 20,
@@ -59,7 +59,7 @@ export const DEMO_PRESETS: DemoPreset[] = [
   {
     id: "canada-tech-lead",
     title: "Tech Lead to Canada",
-    badge: "Express Entry / GTS",
+    badge: "Permanent Stay & Fast Work Visa",
     flag: "🇨🇦",
     description: "Age 29 • Master's • 6 yrs exp • IELTS 8.0 • $25k USD",
     profile: {
@@ -88,7 +88,7 @@ export const DEMO_PRESETS: DemoPreset[] = [
         goal: "pr",
       },
       overall_score: 88,
-      summary: "Excellent profile for Canadian permanent residency. Under 30 years old, holding a Master's degree and CLB 9+ language score maximizes Federal Skilled Worker human capital points. A Provincial Nomination (PNP) or LMIA job offer guarantees an Invitation to Apply (ITA).",
+      summary: "Very strong match for staying permanently in Canada. Being under 30 with a Master's degree, 6 years of tech work, and an IELTS 8.0 English score puts you near the top of the points system. A provincial tech nomination or approved Canadian job offer would make an invitation very likely.",
       pathways: [
         createPathway({
           name: "Express Entry (Federal Skilled Worker)",
@@ -103,21 +103,21 @@ export const DEMO_PRESETS: DemoPreset[] = [
             evidenceQuality: 95,
             competitiveness: 82,
           },
-          reason: "Scores well above the 67-point FSW eligibility threshold. CRS score is estimated at ~478, which is highly competitive for STEM category-based Express Entry draws.",
+          reason: "Easily passes the basic 67/100 eligibility check. Your estimated ranking score (~478) is strong for Canada's tech and science selection rounds.",
           weaknesses: [
-            "No direct Canadian inland study or Canadian work experience.",
-            "Cutoffs for general (non-category) draws occasionally exceed 500 CRS.",
+            "You haven't studied or worked inside Canada yet (which adds bonus points).",
+            "General invitation rounds sometimes ask for 500+ points, though tech rounds are often lower.",
           ],
           documents: [
-            "Educational Credential Assessment (ECA via WES/CES)",
-            "IELTS General Training Test Report Form",
-            "Proof of Settlement Funds ($14,690+ CAD)",
-            "Employment Reference Letters detailing NOC codes",
+            "Official degree check report (from WES or another approved group)",
+            "IELTS English test result sheet",
+            "Bank statement showing required savings (~$14,690+ CAD)",
+            "Job experience letters from past employers (with duties & hours)",
           ],
           next_steps: [
-            "Submit an Educational Credential Assessment (ECA) for your Master's degree.",
-            "Create an Express Entry candidate pool profile.",
-            "Target Ontario Tech Draw (OINP) and Alberta Express Entry streams.",
+            "Get your Master's degree verified by an approved agency (like WES).",
+            "Submit your free online Express Entry profile.",
+            "Watch for provincial tech invitations from Ontario and Alberta.",
           ],
           citations: [
             {
@@ -125,11 +125,11 @@ export const DEMO_PRESETS: DemoPreset[] = [
               url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/eligibility/federal-skilled-workers.html",
             },
           ],
-          estimated_timeline: "6 - 9 months (after ITA)",
-          top_improvement: "Target STEM-targeted Express Entry category draws or Ontario Tech PNP",
+          estimated_timeline: "6–9 months (after invitation)",
+          top_improvement: "Watch for tech-focused Express Entry rounds or apply for a provincial tech nomination",
         }),
         createPathway({
-          name: "Global Talent Stream (Fast-Track Work Permit)",
+          name: "Global Talent Stream (Fast Work Permit)",
           country: "Canada",
           pathwayId: "can-gts",
           status: "CONDITIONALLY_ELIGIBLE",
@@ -141,20 +141,20 @@ export const DEMO_PRESETS: DemoPreset[] = [
             evidenceQuality: 90,
             competitiveness: 80,
           },
-          reason: "Software Architecture and Engineering roles fall directly under GTS Category B with expedited 2-week LMIA processing upon receiving an eligible Canadian job offer.",
+          reason: "Software and engineering roles qualify for Canada's fast 2-week work permit review once an approved Canadian employer gives you a job offer.",
           weaknesses: [
-            "Requires employer sponsorship with ESDC-approved LMIA.",
-            "Temporary resident status initially (transitions to PR via CEC within 1 year).",
+            "You need a Canadian employer willing to sponsor you and get government hiring approval.",
+            "Starts as a temporary work permit, though you can apply to stay permanently after 1 year working in Canada.",
           ],
           documents: [
-            "Passport copy",
-            "Degree Transcripts & Certifications",
-            "Comprehensive CV / Resume",
-            "Formal Job Offer and Employment Contract",
+            "Valid passport copy",
+            "Degree transcripts and certificates",
+            "Updated resume / CV",
+            "Signed Canadian job offer and work contract",
           ],
           next_steps: [
-            "Interview with designated Canadian GTS employers.",
-            "Obtain expedited Labour Market Impact Assessment.",
+            "Apply to Canadian tech companies approved for fast-track hiring.",
+            "Once hired, your employer completes the fast-track work permit approval.",
           ],
           citations: [
             {
@@ -162,8 +162,8 @@ export const DEMO_PRESETS: DemoPreset[] = [
               url: "https://www.canada.ca/en/employment-social-development/services/foreign-workers/global-talent/requirements.html",
             },
           ],
-          estimated_timeline: "2 - 4 weeks processing",
-          top_improvement: "Secure GTS Employer Sponsorship",
+          estimated_timeline: "2–4 weeks once a job offer is signed",
+          top_improvement: "Get a job offer from an approved Canadian tech employer",
         }),
       ],
     },
@@ -171,7 +171,7 @@ export const DEMO_PRESETS: DemoPreset[] = [
   {
     id: "uk-senior-dev",
     title: "Senior Engineer to UK",
-    badge: "Skilled Worker / Global Talent",
+    badge: "Work Visa & Talent Route",
     flag: "🇬🇧",
     description: "Age 32 • Bachelor's • 8 yrs exp • IELTS 7.5 • $18k USD",
     profile: {
@@ -200,7 +200,7 @@ export const DEMO_PRESETS: DemoPreset[] = [
         goal: "work",
       },
       overall_score: 82,
-      summary: "Solid qualification profile for UK Skilled Worker immigration. Language proficiency exceeds B1 requirement, and 8 years of software development experience positions the candidate well above median UK technology wage thresholds (£38,700).",
+      summary: "Strong match for working in the UK. Your English score (IELTS 7.5) easily meets the rule, and 8 years of software experience helps you qualify for tech jobs paying above the £38,700/year minimum salary.",
       pathways: [
         createPathway({
           name: "UK Skilled Worker Visa",
@@ -215,20 +215,20 @@ export const DEMO_PRESETS: DemoPreset[] = [
             evidenceQuality: 92,
             competitiveness: 78,
           },
-          reason: "Meets English B1 (scored 7.5) and financial maintenance requirements. Requires a formal Certificate of Sponsorship (CoS) from a licensed UK Home Office sponsor meeting the general salary threshold.",
+          reason: "Meets the English rule and savings requirement. Next step is getting a job offer and sponsor code from a licensed UK employer paying at least £38,700/year.",
           weaknesses: [
-            "Current general salary threshold increased to £38,700/yr.",
-            "Immigration Health Surcharge (£1,035/year) requires upfront liquidity.",
+            "You must earn at least £38,700/year (or your job's set minimum pay) to qualify.",
+            "Upfront UK healthcare fee (£1,035 per year of the visa) must be paid when applying.",
           ],
           documents: [
-            "Certificate of Sponsorship (CoS) reference number",
-            "IELTS UKVI Academic or General Training",
-            "Valid Passport with blank pages",
-            "Bank statements showing £1,270 maintenance funds for 28 days",
+            "Sponsor code (Certificate of Sponsorship) from your UK employer",
+            "Approved English test certificate (IELTS for UKVI)",
+            "Valid passport with blank pages",
+            "Bank statements showing at least £1,270 held for 28 days",
           ],
           next_steps: [
-            "Apply to companies on the UK Register of Licensed Sponsors.",
-            "Verify prospective salary meets SOC code going rate.",
+            "Apply to UK companies listed on the official Registered Sponsors list.",
+            "Confirm the job salary meets the minimum required pay for your role.",
           ],
           citations: [
             {
@@ -236,11 +236,11 @@ export const DEMO_PRESETS: DemoPreset[] = [
               url: "https://www.gov.uk/skilled-worker-visa",
             },
           ],
-          estimated_timeline: "3 - 8 weeks",
-          top_improvement: "Secure job offer with £38,700+ salary from an A-rated UK sponsor",
+          estimated_timeline: "3–8 weeks",
+          top_improvement: "Get a sponsored job offer paying £38,700/year or more",
         }),
         createPathway({
-          name: "UK Global Talent (Tech Nation Endorsement)",
+          name: "UK Global Talent Visa (Tech Route)",
           country: "United Kingdom",
           pathwayId: "uk-global-talent",
           status: "CONDITIONALLY_ELIGIBLE",
@@ -252,19 +252,19 @@ export const DEMO_PRESETS: DemoPreset[] = [
             evidenceQuality: 90,
             competitiveness: 75,
           },
-          reason: "8 years of engineering experience with lead responsibilities allows pursuit of Exceptional Promise endorsement without needing an employer sponsor.",
+          reason: "With 8 years of senior engineering experience, you may qualify as a tech leader without needing a company to sponsor your visa.",
           weaknesses: [
-            "Requires extensive evidentiary portfolio (reference letters, open-source/patents, speaking).",
-            "Strict Tech Nation review criteria.",
+            "Requires building a strong portfolio of proof (recommendation letters, projects, articles, or awards).",
+            "Reviewers follow strict approval standards for tech leadership.",
           ],
           documents: [
-            "3 Letters of Recommendation from recognised tech executives",
-            "10 pieces of evidence demonstrating product innovation or significant traction",
-            "Detailed CV highlighting leadership metrics",
+            "3 recommendation letters from recognized tech leaders",
+            "Up to 10 documents proving major product, code, or business impact",
+            "Detailed resume showing your leadership experience",
           ],
           next_steps: [
-            "Assemble 10 pieces of evidence showcasing technical impact.",
-            "Request endorsement review from Tech Nation.",
+            "Gather 10 strong examples showing your tech achievements and leadership.",
+            "Apply for official tech leader approval before submitting your visa.",
           ],
           citations: [
             {
@@ -272,8 +272,8 @@ export const DEMO_PRESETS: DemoPreset[] = [
               url: "https://www.gov.uk/global-talent-digital-technology",
             },
           ],
-          estimated_timeline: "4 - 8 weeks for endorsement + 3 weeks visa",
-          top_improvement: "Publish or document high-impact product architecture or open-source metrics",
+          estimated_timeline: "4–8 weeks for approval + 3 weeks visa",
+          top_improvement: "Document measurable product impact, leadership, or open-source work",
         }),
       ],
     },
@@ -281,7 +281,7 @@ export const DEMO_PRESETS: DemoPreset[] = [
   {
     id: "germany-specialist",
     title: "Specialist to Germany",
-    badge: "Chancenkarte (Opportunity Card)",
+    badge: "1-Year Job Search Visa & Blue Card",
     flag: "🇩🇪",
     description: "Age 27 • Bachelor's • 4 yrs exp • IELTS 7.0 • $15k USD",
     profile: {
@@ -310,10 +310,10 @@ export const DEMO_PRESETS: DemoPreset[] = [
         goal: "work",
       },
       overall_score: 86,
-      summary: "Strong eligibility for Germany's newly launched Chancenkarte (Opportunity Card). The candidate scores 8 out of the required 6 points based on recognized university degree, age under 35, professional experience in a shortage occupation (IT), and C1 English proficiency.",
+      summary: "Strong match for Germany's Opportunity Card (a 1-year visa to look for work in Germany). You score 8 out of 6 needed points based on your recognized degree, age under 35, IT experience, and strong English.",
       pathways: [
         createPathway({
-          name: "Opportunity Card (Chancenkarte - Points Route)",
+          name: "Opportunity Card (1-Year Job Search Visa)",
           country: "Germany",
           pathwayId: "de-opportunity-card",
           status: "ELIGIBLE",
@@ -325,21 +325,21 @@ export const DEMO_PRESETS: DemoPreset[] = [
             evidenceQuality: 92,
             competitiveness: 85,
           },
-          reason: "Surpasses the 6-point statutory threshold with 8 verified points: Recognition of foreign degree (4 pts), Age under 35 (2 pts), 2+ years relevant experience (2 pts), B2+ English (1 pt).",
+          reason: "Easily passes the 6-point rule with 8 points: recognized university degree (4 pts), age under 35 (2 pts), 2+ years experience (2 pts), and strong English (1 pt).",
           weaknesses: [
-            "Requires establishing a German blocked bank account (Sperrkonto) with ~€12,324.",
-            "Valid for 1 year to secure qualified employment in Germany.",
+            "You must set aside ~€12,324 in a German blocked bank account to prove you can pay living costs.",
+            "Valid for 1 year while you search for a skilled job in Germany.",
           ],
           documents: [
-            "Anabin database statement of comparability (or ZAB Statement)",
-            "IELTS test certificate (B2 or C1 level)",
-            "Proof of financial self-sufficiency (Sperrkonto blocked account)",
-            "Detailed CV in tabular European format (Europass)",
+            "Proof your university degree is recognized in Germany (Anabin or ZAB check)",
+            "IELTS English test certificate",
+            "Blocked bank account proof showing enough living funds",
+            "Clear resume (CV) showing your work history",
           ],
           next_steps: [
-            "Verify university degree compatibility on the official Anabin database.",
-            "Open a German blocked account (e.g. Fintiba / Expatrio).",
-            "Book an appointment at the German Embassy / Consular mission.",
+            "Check if your university and degree are listed on Germany's Anabin website.",
+            "Open a German blocked bank account for your living funds.",
+            "Book a visa appointment at your local German embassy or visa center.",
           ],
           citations: [
             {
@@ -347,8 +347,8 @@ export const DEMO_PRESETS: DemoPreset[] = [
               url: "https://www.make-it-in-germany.com/en/visa-residence/types/opportunity-card",
             },
           ],
-          estimated_timeline: "4 - 8 weeks",
-          top_improvement: "Complete German A1/A2 language study to add an extra point and boost hiring prospects",
+          estimated_timeline: "4–8 weeks",
+          top_improvement: "Learn basic German (A1/A2) to earn an extra point and find jobs faster",
         }),
         createPathway({
           name: "EU Blue Card (Germany)",
@@ -363,19 +363,19 @@ export const DEMO_PRESETS: DemoPreset[] = [
             evidenceQuality: 94,
             competitiveness: 82,
           },
-          reason: "IT professionals benefit from lower salary thresholds (€41,041.80/yr in 2024). Once a German contract is signed, the EU Blue Card offers direct settlement permit (PR) after 21-27 months.",
+          reason: "IT workers qualify at a lower salary threshold than most jobs. Once you sign a German job contract, this visa lets you apply to stay permanently in 21–27 months.",
           weaknesses: [
-            "Requires a binding German job offer in field of study.",
-            "Degree must be recognized as equivalent to a German university degree.",
+            "Requires a signed German job offer matching your degree or IT experience.",
+            "Your degree must be recognized as matching a German university degree.",
           ],
           documents: [
-            "German Employment Contract or Binding Job Offer",
-            "Declaration on the Employment Relationship (Erklärung zum Beschäftigungsverhältnis)",
-            "Anabin / ZAB university equivalence certificate",
+            "Signed German job contract or formal job offer",
+            "Employer work details form signed by the German company",
+            "Proof your university degree is recognized in Germany",
           ],
           next_steps: [
-            "Engage in remote interviews with German tech startups and scaleups.",
-            "Confirm salary package exceeds the shortage occupation minimum.",
+            "Apply for roles at German tech companies that hire international workers.",
+            "Check that the offered salary meets Germany's Blue Card minimum.",
           ],
           citations: [
             {
@@ -383,8 +383,8 @@ export const DEMO_PRESETS: DemoPreset[] = [
               url: "https://www.bamf.de/EN/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/Migrathek/BlaueKarteEU/blauekarteeu-node.html",
             },
           ],
-          estimated_timeline: "4 - 6 weeks (after contract)",
-          top_improvement: "Target remote hiring platforms for German companies providing relocation support",
+          estimated_timeline: "4–6 weeks (after contract)",
+          top_improvement: "Apply to German companies open to English-speaking tech hires",
         }),
       ],
     },
